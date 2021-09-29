@@ -142,7 +142,6 @@ card_separate <- card_separate %>%
 clean/organize client (Dani fragen)
 ```{r}
 #aufräumen client
-
 # frauen männer trennen
 # geburtsdatum in form bringen
 
