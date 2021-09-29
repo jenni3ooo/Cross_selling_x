@@ -1,0 +1,366 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+load  
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(ggmosaic)
+library(ggalluvial)
+library(rpart)
+library(rpart.plot)
+library(gridExtra)
+library(usethis)
+library(ggplot2)
+
+use_git_config(user.name = "Jennifer von Känel", user.email = "jenni@studio3000.ch")
+
+account <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/account.csv')
+
+card <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/card.csv')
+
+client <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/client.csv')
+
+disp <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/disp.csv')
+
+district <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/district.csv')
+
+loan <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/loan.csv')
+
+order <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/order.csv')
+
+trans <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/trans.csv')
+
+
+
+```
+
+separate in columns
+```{r}
+
+#split up the lists in a form
+account_separate <- account %>%
+  separate(account_id.district_id.frequency.date, c("account_id","district_id",'frequency', 'date'), ";")
+  colnames(account_separate)[3] <- 'frequency_issuance'
+
+card_separate <- card %>%
+  separate(card_id.disp_id.type.issued, c('card_id', 'disp_id', 'type_of_card', 'issued'),';')
+
+client_separate <- client %>%
+  separate(client_id.birth_number.district_id, c('client_id','birth_number','district_id'),';')
+
+district_separate <- district %>%
+  separate(A1.A2.A3.A4.A5.A6.A7.A8.A9.A10.A11.A12.A13.A14.A15.A16, c('district_code','district_name','region','no_of_inhabitants','no_of_municipalities_with_inhabitants_<_499','no_of_municipalities_with_inhabitants_500-1999','no_of_municipalities_with_inhabitants_2000-9999','no_of_municipalities_with_inhabitants_>10000','no_of_cities','ratio_of_urban_inhabitants','avg_salary','unemploymant_rate_95','unemploymant_rate_96','no_of_enterpreneurs_per_1000_inhabitants','no_of_commited_crimes_95','no_of_commited_crimes_96'),';')
+
+disp_separate <- disp %>%
+  separate(disp_id.client_id.account_id.type, c('disp_id','client_id','account_id','type_of_disposition'),';')
+
+loan_separate <- loan %>%
+  separate(loan_id.account_id.date.amount.duration.payments.status,c('loan_id','account_id','date','amount','duration','monthly_payments','status'),';')
+
+order_separate <- order %>%
+  separate(order_id.account_id.bank_to.account_to.amount.k_symbol,c('order_id','account_id','bank_to','account_to','amount','k_symbol'),';')
+
+trans_separate <- trans %>%
+  separate(trans_id.account_id.date.type.operation.amount.balance.k_symbol.bank.account,c('trans_id','account_id','date','type','operation','amount','balance','k_symbol','bank','account'),';')
+
+
+```
+
+clean/organize account
+```{r}
+#aufräumen account_separate
+
+#account_separate <- account_separate %>%
+ # add_column(issuance_weekly = NA) %>%
+ # add_column(issuance_monthly = NA) %>%
+ # add_column(issuance_transaction = NA)
+
+account_separate$date_dmy <- format(as.Date(as.character(account_separate$date), "%y%m%d"), "%d.%m.%Y")
+
+account_separate <- account_separate %>%
+mutate(issuance_monthly = case_when(
+    endsWith(frequency_issuance, 'MESICNE') ~ "1",
+    TRUE ~ '0',
+    ))   
+
+account_separate <- account_separate %>%
+mutate(issuance_weekly = case_when(
+    endsWith(frequency_issuance, 'TYDNE') ~ "1",
+    TRUE ~ '0',
+    ))   
+
+account_separate <- account_separate %>%
+mutate(issuance_transaction = case_when(
+    endsWith(frequency_issuance, 'PO OBRATU') ~ '1',
+    TRUE ~ '0'
+    ))       
+
+account_separate <- account_separate %>%
+  select(-frequency_issuance,-date)
+    
+```
+
+clean/organize card
+```{r}
+#aufräumen card
+#issued formatieren
+
+#type of card auf spalten aufteilen?
+
+card_separate <- card_separate %>%
+  mutate(junior_card = case_when(
+    type_of_card == 'junior' ~ 1,
+    TRUE~0
+  )
+  )
+card_separate <- card_separate %>%
+  mutate(classic_card = case_when(
+    type_of_card == 'classic' ~ 1,
+    TRUE~0
+  )
+  )
+card_separate <- card_separate %>%
+  mutate(gold_card = case_when(
+    type_of_card == 'gold' ~ 1,
+    TRUE~0
+  )
+  )
+
+card_separate$issued_date <- format(as.Date(as.character(card_separate$issued), "%y%m%d"), "%d.%m.%Y")
+
+
+card_separate <- card_separate %>%
+  select(-issued)
+  
+  
+#card_separate <- card_separate %>%
+  #mutate(gold_card = case_when(
+    #type_of_card == classic ~ '1',
+    #TRUE ~'0'
+  #))
+```
+
+clean/organize client (Dani fragen)
+```{r}
+#aufräumen client
+
+# frauen männer trennen
+# geburtsdatum in form bringen
+  
+#client_separate <- client_separate %>%
+ # mutate(
+  #  birth_number = as.numeric(birth_number)
+ # )
+
+client_separate$birthday <- format(as.Date(as.character(client_separate$birth_number), "%y%m%d"), "%d.%m.%Y")
+
+
+
+
+client_separate <- client_separate %>%
+  mutate(gender = case_when(
+    birth_number[3] > '1' ~'f',
+          TRUE ~'m'
+  )
+  )
+
+#strsplit(birth_number,"_")[[1]][3]
+  
+```
+
+clean/organize disp
+```{r}
+#aufräumen disp
+#type of disp unterteilen in 2 spalten
+
+disp_separate <- disp_separate %>%
+  mutate(owner = case_when(
+    type_of_disposition == 'OWNER' ~ 1,
+    TRUE~0
+  )
+  )
+disp_separate <- disp_separate %>%
+  mutate(disponent = case_when(
+    type_of_disposition == 'DISPONENT' ~ 1,
+    TRUE~0
+  )
+  )
+
+disp_separate <- disp_separate %>%
+  select(-type_of_disposition)
+```
+
+clean/organize district
+```{r}
+#aufräumen district
+#district name formatieren?
+#no_of anders anzeigen?
+```
+
+clean/organize loan
+```{r}
+
+#aufräumen loan
+#date formatieren
+loan_separate$date_issued <- format(as.Date(as.character(loan_separate$date), "%y%m%d"), "%d.%m.%Y")
+
+loan_separate <- loan_separate %>%
+  mutate(in_debt = case_when(
+    status == 'D'~1,
+    TRUE ~0
+  ))
+
+loan_separate <- loan_separate %>%
+  mutate(ok_so_far= case_when(
+    status == 'C'~1,
+    TRUE ~0
+  ))
+loan_separate <- loan_separate %>%
+  mutate(loan_not_payed= case_when(
+    status == 'B'~1,
+    TRUE ~0
+  ))
+loan_separate <- loan_separate %>%
+  mutate(payed_off= case_when(
+    status == 'A'~1,
+    TRUE ~0
+  ))
+```
+
+```{r}
+loan_separate <- loan_separate %>%
+  select(-date)
+```
+
+clean/organize order
+```{r}
+#order aufräumen
+#k_symbols
+
+order_separate <- order_separate %>%
+  mutate(insurrance_payment = case_when(
+    k_symbol == 'POJISTNE' ~1,
+    TRUE ~0
+  ))
+
+order_separate <- order_separate %>%
+  mutate(household = case_when(
+    k_symbol == 'SIPO' ~ 1,
+    TRUE ~ 0
+  ))
+
+order_separate <- order_separate %>%
+  mutate(for_leasing = case_when(
+    k_symbol == 'LEASING' ~1,
+    TRUE ~0
+  ))
+
+order_separate <- order_separate %>%
+  mutate(loan_payment = case_when(
+    k_symbol == 'UVER' ~1,
+    TRUE ~0
+  ))
+```
+
+clean/organize trans
+```{r}
+#aufräumen trans
+#date formatieren
+#operation?
+#k_symbol
+# amount = balance? nicht alle beträge gleich aber fast. Was ist der unterschied?
+
+trans_separate$date_dmy <- format(as.Date(as.character(trans_separate$date), "%y%m%d"), "%d.%m.%Y")
+
+trans_separate <- trans_separate %>%
+  mutate(credit = case_when(
+    type == 'PRIJEM' ~ 1,
+    TRUE ~ 0
+  ))
+
+trans_separate <- trans_separate %>%
+  mutate(withdrawal = case_when(
+    type == 'VYDAJ' ~ 1,
+    TRUE ~ 0
+  ))
+
+trans_separate <- trans_separate %>%
+  mutate(creditcard_wd = case_when(
+    operation == 'VYBER KARTOU' ~ 1,
+    TRUE ~ 0
+  ))
+  
+trans_separate <- trans_separate %>%
+  mutate(credit_cash = case_when(
+    operation == 'VKLAD' ~ 1,
+    TRUE ~ 0
+  ))
+
+trans_separate <- trans_separate %>%
+  mutate(col_from_other_bank = case_when(
+    operation == 'PREVOD Z UCTU' ~ 1, 
+    TRUE ~0
+  ))
+trans_separate <- trans_separate %>%
+  mutate(wd_cash = case_when(
+    operation == 'VYBER' ~1,
+    TRUE ~0
+  ))
+trans_separate <- trans_separate %>%
+  mutate(rem_to_other_bank = case_when(
+    operation == 'PREVOD NA UCET' ~1,
+    TRUE ~0
+  ))
+
+trans_separate <- trans_separate %>%
+  mutate(ks_insurrance_payment = case_when(
+    k_symbol == 'POJISTNE' ~1,
+    TRUE ~0
+  ))
+
+trans_separate <- trans_separate %>%
+  mutate(ks_insurrance_payment = case_when(
+    k_symbol == 'POJISTNE' ~1,
+    TRUE ~0
+  ))
+
+trans_separate <- trans_separate %>%
+  mutate(ks_payment_of_statement = case_when(
+    k_symbol == 'SLUZBY' ~1,
+    TRUE ~0
+  ))
+trans_separate <- trans_separate %>%
+  mutate(ks_interest_redit = case_when(
+    k_symbol == 'UROK' ~1,
+    TRUE ~0
+  ))
+trans_separate <- trans_separate %>%
+  mutate(ks_interest_if_n_balance = case_when(
+    k_symbol == 'SANKC. UROK' ~1,
+    TRUE ~0
+  ))
+trans_separate <- trans_separate %>%
+  mutate(ks_household = case_when(
+    k_symbol == 'SIPO' ~1,
+    TRUE ~0
+  ))
+trans_separate <- trans_separate %>%
+  mutate(ks_old_age_pension = case_when(
+    k_symbol == 'DUCHOD' ~1,
+    TRUE ~0
+  ))
+trans_separate <- trans_separate %>%
+  mutate(ks_loan_payment = case_when(
+    k_symbol == 'UVER' ~1,
+    TRUE ~0
+  ))
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
