@@ -17,19 +17,19 @@ library(ggplot2)
 
 use_git_config(user.name = "Jennifer von Känel", user.email = "jenni@studio3000.ch")
 
-account <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/account.csv')
+account <- read.csv('./account.csv')
 
-card <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/card.csv')
+card <- read.csv('./card.csv')
 
-client <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/client.csv')
+client <- read.csv('./client.csv')
 
-disp <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/disp.csv')
+disp <- read.csv('./disp.csv')
 
-district <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/district.csv')
+district <- read.csv('./district.csv')
 
-loan <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/loan.csv')
+loan <- read.csv('./loan.csv')
 
-order <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/order.csv')
+order <- read.csv('./order.csv')
 
 trans <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/trans.csv')
 
