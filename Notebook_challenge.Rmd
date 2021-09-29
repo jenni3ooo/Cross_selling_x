@@ -151,17 +151,27 @@ clean/organize client (Dani fragen)
   #  birth_number = as.numeric(birth_number)
  # )
 
+client_separate <- client_separate %>%
+  mutate(month =substr(birth_number, 3, 4))
+
+client_separate <- client_separate %>%
+  mutate(gender = case_when(
+    month > 12 ~'f',
+    TRUE ~'m'
+  ))
+
+birth_number <- as.numeric(birth_number)
+
+
+
+
+
 client_separate$birthday <- format(as.Date(as.character(client_separate$birth_number), "%y%m%d"), "%d.%m.%Y")
 
 
 
 
-client_separate <- client_separate %>%
-  mutate(gender = case_when(
-    birth_number[3] > '1' ~'f',
-          TRUE ~'m'
-  )
-  )
+
 
 #strsplit(birth_number,"_")[[1]][3]
   
