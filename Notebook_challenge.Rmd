@@ -15,8 +15,6 @@ library(gridExtra)
 library(usethis)
 library(ggplot2)
 
-use_git_config(user.name = "Jennifer von Känel", user.email = "jenni@studio3000.ch")
-
 account <- read.csv('./account.csv')
 
 card <- read.csv('./card.csv')
