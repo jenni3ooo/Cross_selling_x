@@ -29,9 +29,7 @@ loan <- read.csv('./loan.csv')
 
 order <- read.csv('./order.csv')
 
-trans <- read.csv('/Users/jennifervonkanel/Documents/R_directory/Challenege - Cross selling/xselling_banking_data/trans.csv')
-
-
+trans <- read.csv('./trans.csv')
 
 ```
 
