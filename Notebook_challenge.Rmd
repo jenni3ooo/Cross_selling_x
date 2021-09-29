@@ -145,14 +145,10 @@ clean/organize client (Dani fragen)
 
 # frauen männer trennen
 # geburtsdatum in form bringen
-  
-#client_separate <- client_separate %>%
- # mutate(
-  #  birth_number = as.numeric(birth_number)
- # )
+
 
 client_separate <- client_separate %>%
-  mutate(month =substr(birth_number, 3, 4))
+  mutate(month = substr(birth_num, 3, 4))
 
 client_separate <- client_separate %>%
   mutate(gender = case_when(
@@ -160,18 +156,20 @@ client_separate <- client_separate %>%
     TRUE ~'m'
   ))
 
-birth_number <- as.numeric(birth_number)
+client_separate <- client_separate %>%
+  mutate(
+    birth_number = as.numeric(birth_num),
+  )
 
-
-
-
+client_separate <- client_separate %>%
+  mutate(birth_number = case_when(
+    month > 12 ~ birth_number - 5000,
+    TRUE ~ birth_number
+  ))
 
 client_separate$birthday <- format(as.Date(as.character(client_separate$birth_number), "%y%m%d"), "%d.%m.%Y")
 
-
-
-
-
+str(client_separate)
 
 #strsplit(birth_number,"_")[[1]][3]
   
