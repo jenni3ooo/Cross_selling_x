@@ -45,7 +45,7 @@ card_separate <- card %>%
   separate(card_id.disp_id.type.issued, c('card_id', 'disp_id', 'type_of_card', 'issued'),';')
 
 client_separate <- client %>%
-  separate(client_id.birth_number.district_id, c('client_id','birth_number','district_id'),';')
+  separate(client_id.birth_number.district_id, c('client_id','birth_num','district_id'),';')
 
 district_separate <- district %>%
   separate(A1.A2.A3.A4.A5.A6.A7.A8.A9.A10.A11.A12.A13.A14.A15.A16, c('district_code','district_name','region','no_of_inhabitants','no_of_municipalities_with_inhabitants_<_499','no_of_municipalities_with_inhabitants_500-1999','no_of_municipalities_with_inhabitants_2000-9999','no_of_municipalities_with_inhabitants_>10000','no_of_cities','ratio_of_urban_inhabitants','avg_salary','unemploymant_rate_95','unemploymant_rate_96','no_of_enterpreneurs_per_1000_inhabitants','no_of_commited_crimes_95','no_of_commited_crimes_96'),';')
@@ -145,23 +145,31 @@ clean/organize client (Dani fragen)
 
 # frauen männer trennen
 # geburtsdatum in form bringen
-  
-#client_separate <- client_separate %>%
- # mutate(
-  #  birth_number = as.numeric(birth_number)
- # )
-
-client_separate$birthday <- format(as.Date(as.character(client_separate$birth_number), "%y%m%d"), "%d.%m.%Y")
-
-
 
 
 client_separate <- client_separate %>%
+  mutate(month = substr(birth_num, 3, 4))
+
+client_separate <- client_separate %>%
   mutate(gender = case_when(
-    birth_number[3] > '1' ~'f',
-          TRUE ~'m'
+    month > 12 ~'f',
+    TRUE ~'m'
+  ))
+
+client_separate <- client_separate %>%
+  mutate(
+    birth_number = as.numeric(birth_num),
   )
-  )
+
+client_separate <- client_separate %>%
+  mutate(birth_number = case_when(
+    month > 12 ~ birth_number - 5000,
+    TRUE ~ birth_number
+  ))
+
+client_separate$birthday <- format(as.Date(as.character(client_separate$birth_number), "%y%m%d"), "%d.%m.%Y")
+
+str(client_separate)
 
 #strsplit(birth_number,"_")[[1]][3]
   
