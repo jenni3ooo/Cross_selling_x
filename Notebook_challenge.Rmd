@@ -143,7 +143,7 @@ card_separate <- card_separate %>%
   #))
 ```
 
-clean/organize client (Dani fragen)
+clean/organize client (Dani fragen) we are lost
 ```{r}
 #aufräumen client
 
