@@ -15,358 +15,388 @@ library(gridExtra)
 library(usethis)
 library(ggplot2)
 
-account <- read.csv('./account.csv')
-
-card <- read.csv('./card.csv')
-
-client <- read.csv('./client.csv')
-
-disp <- read.csv('./disp.csv')
-
-district <- read.csv('./district.csv')
-
-loan <- read.csv('./loan.csv')
-
-order <- read.csv('./order.csv')
-
-trans <- read.csv('./trans.csv')
+account <- read.csv('./account.csv', sep = ";")
+card <- read.csv('./card.csv', sep = ";")
+client <- read.csv('./client.csv', sep = ";")
+disp <- read.csv('./disp.csv', sep = ";")
+district <- read.csv('./district.csv', sep = ";")
+loan <- read.csv('./loan.csv', sep = ";")
+order <- read.csv('./order.csv', sep = ";")
+trans <- read.csv('./trans.csv', sep = ";")
 
 ```
 
 separate in columns
 ```{r}
-
+#update 02.10.2021: we found out that there is an easier way to split the csv into columns with the sep = ";"
 #split up the lists in a form
-account_separate <- account %>%
-  separate(account_id.district_id.frequency.date, c("account_id","district_id",'frequency', 'date'), ";")
-  colnames(account_separate)[3] <- 'frequency_issuance'
-
-card_separate <- card %>%
-  separate(card_id.disp_id.type.issued, c('card_id', 'disp_id', 'type_of_card', 'issued'),';')
-
-client_separate <- client %>%
-  separate(client_id.birth_number.district_id, c('client_id','birth_num','district_id'),';')
-
-district_separate <- district %>%
-  separate(A1.A2.A3.A4.A5.A6.A7.A8.A9.A10.A11.A12.A13.A14.A15.A16, c('district_code','district_name','region','no_of_inhabitants','no_of_municipalities_with_inhabitants_<_499','no_of_municipalities_with_inhabitants_500-1999','no_of_municipalities_with_inhabitants_2000-9999','no_of_municipalities_with_inhabitants_>10000','no_of_cities','ratio_of_urban_inhabitants','avg_salary','unemploymant_rate_95','unemploymant_rate_96','no_of_enterpreneurs_per_1000_inhabitants','no_of_commited_crimes_95','no_of_commited_crimes_96'),';')
-
-disp_separate <- disp %>%
-  separate(disp_id.client_id.account_id.type, c('disp_id','client_id','account_id','type_of_disposition'),';')
-
-loan_separate <- loan %>%
-  separate(loan_id.account_id.date.amount.duration.payments.status,c('loan_id','account_id','date','amount','duration','monthly_payments','status'),';')
-
-order_separate <- order %>%
-  separate(order_id.account_id.bank_to.account_to.amount.k_symbol,c('order_id','account_id','bank_to','account_to','amount','k_symbol'),';')
-
-trans_separate <- trans %>%
-  separate(trans_id.account_id.date.type.operation.amount.balance.k_symbol.bank.account,c('trans_id','account_id','date','type','operation','amount','balance','k_symbol','bank','account'),';')
-
+# account <- account %>%
+#   separate(account_id.district_id.frequency.date, c("account_id","district_id",'frequency', 'date'), ";")
+#   colnames(account)[3] <- 'frequency_issuance'
+# 
+# card <- card %>%
+#   separate(card_id.disp_id.type.issued, c('card_id', 'disp_id', 'type_of_card', 'issued'),';')
+# 
+# client <- client %>%
+#   separate(client_id.birth_number.district_id, c('client_id','birth_num','district_id'),';')
+# 
+# district <- district %>%
+#   separate(A1.A2.A3.A4.A5.A6.A7.A8.A9.A10.A11.A12.A13.A14.A15.A16, c('district_code','district_name','region','no_of_inhabitants','no_of_municipalities_with_inhabitants_<_499','no_of_municipalities_with_inhabitants_500-1999','no_of_municipalities_with_inhabitants_2000-9999','no_of_municipalities_with_inhabitants_>10000','no_of_cities','ratio_of_urban_inhabitants','avg_salary','unemploymant_rate_95','unemploymant_rate_96','no_of_enterpreneurs_per_1000_inhabitants','no_of_commited_crimes_95','no_of_commited_crimes_96'),';')
+# 
+# disp <- disp %>%
+#   separate(disp_id.client_id.account_id.type, c('disp_id','client_id','account_id','type_of_disposition'),';')
+# 
+# loan <- loan %>%
+#   separate(loan_id.account_id.date.amount.duration.payments.status,c('loan_id','account_id','date','amount','duration','monthly_payments','status'),';')
+# 
+# order <- order %>%
+#   separate(order_id.account_id.bank_to.account_to.amount.k_symbol,c('order_id','account_id','bank_to','account_to','amount','k_symbol'),';')
+# 
+# trans <- trans %>%
+#   separate(trans_id.account_id.date.type.operation.amount.balance.k_symbol.bank.account,c('trans_id','account_id','date','type','operation','amount','balance','k_symbol','bank','account'),';')
 
 ```
 
 clean/organize account
 ```{r}
-#aufräumen account_separate
 
-#account_separate <- account_separate %>%
- # add_column(issuance_weekly = NA) %>%
- # add_column(issuance_monthly = NA) %>%
- # add_column(issuance_transaction = NA)
+#reformat frequency_issuance into 3 new columns
+account <- account %>%
+  mutate(issuance_monthly = case_when(
+    endsWith(frequency, 'MESICNE') ~ 1,
+    TRUE ~ 0)
+  )
 
-account_separate$date_dmy <- format(as.Date(as.character(account_separate$date), "%y%m%d"), "%d.%m.%Y")
+account <- account %>%
+  mutate(issuance_weekly = case_when(
+    endsWith(frequency, 'TYDNE') ~ 1,
+    TRUE ~ 0)
+  )
 
-account_separate <- account_separate %>%
-mutate(issuance_monthly = case_when(
-    endsWith(frequency_issuance, 'MESICNE') ~ "1",
-    TRUE ~ '0',
-    ))   
+account <- account %>%
+  mutate(issuance_transaction = case_when(
+    endsWith(frequency, 'PO OBRATU') ~ 1,
+    TRUE ~ 0)
+  )
 
-account_separate <- account_separate %>%
-mutate(issuance_weekly = case_when(
-    endsWith(frequency_issuance, 'TYDNE') ~ "1",
-    TRUE ~ '0',
-    ))   
+#reformat date
+account$date_dmy <- format(as.Date(as.character(account$date), "%y%m%d"), "%d.%m.%Y") 
+account <- account %>%
+  select(-date)
 
-account_separate <- account_separate %>%
-mutate(issuance_transaction = case_when(
-    endsWith(frequency_issuance, 'PO OBRATU') ~ '1',
-    TRUE ~ '0'
-    ))       
+#factorize variables
+account <- account %>% 
+  mutate (frequency = as_factor(frequency), issuance_monthly = as_factor(issuance_monthly), 
+          issuance_weekly = as_factor(issuance_weekly), issuance_transaction = as_factor(issuance_transaction))
 
-account_separate <- account_separate %>%
-  select(-frequency_issuance,-date)
+str(account)
     
 ```
 
 clean/organize card
 ```{r}
-#aufräumen card
-#issued formatieren
 
-#type of card auf spalten aufteilen?
-
-card_separate <- card_separate %>%
+#reformat type_of_card into 3 new columns
+card <- card %>%
   mutate(junior_card = case_when(
-    type_of_card == 'junior' ~ 1,
-    TRUE~0
+    type == 'junior' ~ 1,
+    TRUE ~ 0)
   )
-  )
-card_separate <- card_separate %>%
+
+card <- card %>%
   mutate(classic_card = case_when(
-    type_of_card == 'classic' ~ 1,
-    TRUE~0
+    type == 'classic' ~ 1,
+    TRUE ~ 0)
   )
-  )
-card_separate <- card_separate %>%
+
+card <- card %>%
   mutate(gold_card = case_when(
-    type_of_card == 'gold' ~ 1,
-    TRUE~0
+    type == 'gold' ~ 1,
+    TRUE ~ 0)
   )
-  )
 
-card_separate$issued_date <- format(as.Date(as.character(card_separate$issued), "%y%m%d"), "%d.%m.%Y")
-
-
-card_separate <- card_separate %>%
+#reformat date
+card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "%d.%m.%Y")
+card <- card %>%
   select(-issued)
+
+#factorize variables
+card <- card %>%
+  mutate(type = as_factor(type), junior_card = as_factor(junior_card), classic_card = as_factor(classic_card),
+         gold_card = as_factor(gold_card))
+
+str(card)
   
-  
-#card_separate <- card_separate %>%
-  #mutate(gold_card = case_when(
-    #type_of_card == classic ~ '1',
-    #TRUE ~'0'
-  #))
 ```
 
 clean/organize client (Dani fragen)
 ```{r}
-#aufräumen client
-# frauen männer trennen
-# geburtsdatum in form bringen
 
+#reformat birth_number
+client <- client %>%
+  mutate(month = substr(birth_number, 3, 4)) %>%
+  mutate(month = strtoi(month))
 
-client_separate <- client_separate %>%
-  mutate(month = substr(birth_num, 3, 4))
-
-client_separate <- client_separate %>%
+client <- client %>%
   mutate(gender = case_when(
-    month > 12 ~'f',
-    TRUE ~'m'
-  ))
-
-client_separate <- client_separate %>%
-  mutate(
-    birth_number = as.numeric(birth_num),
+    month > 12 ~ 'f',
+    TRUE ~ 'm')
   )
 
-client_separate <- client_separate %>%
+client <- client %>%
+  mutate(birth_number = as.numeric(birth_number))
+
+client <- client %>%
   mutate(birth_number = case_when(
     month > 12 ~ birth_number - 5000,
-    TRUE ~ birth_number
-  ))
+    TRUE ~ birth_number)
+  )
 
-client_separate$birthday <- format(as.Date(as.character(client_separate$birth_number), "%y%m%d"), "%d.%m.%Y")
+client$birthday <- format(as.Date(as.character(client$birth_number), "%y%m%d"), "%d.%m.%Y")
+client <- client %>%
+  select(-birth_number)
 
-str(client_separate)
+#factorize variables
+client <- client %>%
+  mutate(district_id = as_factor(district_id), gender = as_factor(gender))
 
-#strsplit(birth_number,"_")[[1]][3]
+str(client)
   
 ```
 
 clean/organize disp
 ```{r}
-#aufräumen disp
-#type of disp unterteilen in 2 spalten
 
-disp_separate <- disp_separate %>%
+#reformat type into 2 new columns
+disp <- disp %>%
   mutate(owner = case_when(
-    type_of_disposition == 'OWNER' ~ 1,
-    TRUE~0
+    type == 'OWNER' ~ 1,
+    TRUE ~ 0)
   )
-  )
-disp_separate <- disp_separate %>%
+disp <- disp %>%
   mutate(disponent = case_when(
-    type_of_disposition == 'DISPONENT' ~ 1,
-    TRUE~0
-  )
+    type == 'DISPONENT' ~ 1,
+    TRUE ~ 0)
   )
 
-disp_separate <- disp_separate %>%
-  select(-type_of_disposition)
+#factorize variables
+disp <- disp %>%
+  mutate(type = as_factor(type), owner = as_factor(owner), disponent = as_factor(disponent))
+
+str(disp)
 ```
 
 clean/organize district
 ```{r}
-#aufräumen district
-#district name formatieren?
-#no_of anders anzeigen?
+
+#rename coluns
+names(district) <- c('district_id', 'district_name', 'region', 'habitants', 'municipalities<499',
+                     'municipalities<500-1000', 'municipalities<2000-9999', 'municipalities>10000', 'cities',
+                     'ratio_urban_inhabitants', 'average_salary', 'unemployment_rate_1995', 'unemployment_rate_1996',
+                     'enterpreneurs_per_1000', 'crimes_1995', 'crimes_1996')
+
+#factorize variables
+district <- district %>%
+  mutate(district_name = as_factor(district_name), region = as_factor(region))
+
+#change datatype to numeric/int
+district <- district %>% 
+  mutate(unemployment_rate_1995 = as.numeric(unemployment_rate_1995), enterpreneurs_per_1000 = strtoi(enterpreneurs_per_1000), crimes_1995 = strtoi(crimes_1995))
+
+str(district)
+
 ```
 
 clean/organize loan
 ```{r}
 
-#aufräumen loan
-#date formatieren
-loan_separate$date_issued <- format(as.Date(as.character(loan_separate$date), "%y%m%d"), "%d.%m.%Y")
-
-loan_separate <- loan_separate %>%
-  mutate(in_debt = case_when(
-    status == 'D'~1,
-    TRUE ~0
-  ))
-
-loan_separate <- loan_separate %>%
-  mutate(ok_so_far= case_when(
-    status == 'C'~1,
-    TRUE ~0
-  ))
-loan_separate <- loan_separate %>%
-  mutate(loan_not_payed= case_when(
-    status == 'B'~1,
-    TRUE ~0
-  ))
-loan_separate <- loan_separate %>%
-  mutate(payed_off= case_when(
-    status == 'A'~1,
-    TRUE ~0
-  ))
-```
-
-```{r}
-loan_separate <- loan_separate %>%
+#reformat date
+loan$date_issued <- format(as.Date(as.character(loan$date), "%y%m%d"), "%d.%m.%Y")
+loan <- loan %>%
   select(-date)
+
+#reformat status into 4 new columns
+loan <- loan %>%
+  mutate(in_debt = case_when(
+    status == 'D' ~ 1,
+    TRUE ~ 0)
+  )
+
+loan <- loan %>%
+  mutate(ok_so_far= case_when(
+    status == 'C' ~ 1,
+     TRUE ~ 0)
+  )
+
+loan <- loan %>%
+  mutate(loan_not_payed= case_when(
+    status == 'B'~ 1,
+    TRUE ~ 0)
+  )
+
+loan <- loan %>%
+  mutate(payed_off= case_when(
+    status == 'A'~ 1,
+    TRUE ~ 0)
+  )
+
+#factorize variables
+loan <- loan %>%
+  mutate(duration = as_factor(duration), status = as_factor(status), in_debt = as_factor(in_debt), 
+         ok_so_far = as_factor(ok_so_far), loan_not_payed = as_factor(loan_not_payed), 
+         payed_off = as_factor(payed_off))
+
+str(loan)
+
 ```
 
 clean/organize order
 ```{r}
-#order aufräumen
-#k_symbols
 
-order_separate <- order_separate %>%
+#reformat k_symbol into 4 new columns
+order <- order %>%
   mutate(insurrance_payment = case_when(
-    k_symbol == 'POJISTNE' ~1,
-    TRUE ~0
-  ))
+    k_symbol == 'POJISTNE' ~ 1,
+    TRUE ~ 0)
+  )
 
-order_separate <- order_separate %>%
+order <- order %>%
   mutate(household = case_when(
     k_symbol == 'SIPO' ~ 1,
-    TRUE ~ 0
-  ))
+    TRUE ~ 0)
+  )
 
-order_separate <- order_separate %>%
+order <- order %>%
   mutate(for_leasing = case_when(
-    k_symbol == 'LEASING' ~1,
-    TRUE ~0
-  ))
+    k_symbol == 'LEASING' ~ 1,
+    TRUE ~ 0)
+  )
 
-order_separate <- order_separate %>%
+order <- order %>%
   mutate(loan_payment = case_when(
-    k_symbol == 'UVER' ~1,
-    TRUE ~0
-  ))
+    k_symbol == 'UVER' ~ 1,
+    TRUE ~ 0)
+  )
+
+#factorize variables
+order <- order %>%
+  mutate(bank_to = as_factor(bank_to), k_symbol = as_factor(k_symbol), 
+         insurrance_payment = as_factor(insurrance_payment), household = as_factor(household), 
+         for_leasing = as_factor(for_leasing), loan_payment = as_factor(loan_payment))
+
+str(order)
 ```
 
 clean/organize trans
 ```{r}
-#aufräumen trans
-#date formatieren
-#operation?
-#k_symbol
-# amount = balance? nicht alle beträge gleich aber fast. Was ist der unterschied?
 
-trans_separate$date_dmy <- format(as.Date(as.character(trans_separate$date), "%y%m%d"), "%d.%m.%Y")
+#reformat date
+trans$date_dmy <- format(as.Date(as.character(trans$date), "%y%m%d"), "%d.%m.%Y")
+trans <- trans %>%
+  select(-date)
 
-trans_separate <- trans_separate %>%
+#reformat type into 2 new columns
+trans <- trans %>%
   mutate(credit = case_when(
     type == 'PRIJEM' ~ 1,
-    TRUE ~ 0
-  ))
+    TRUE ~ 0)
+  )
 
-trans_separate <- trans_separate %>%
+trans <- trans %>%
   mutate(withdrawal = case_when(
     type == 'VYDAJ' ~ 1,
-    TRUE ~ 0
-  ))
+    TRUE ~ 0)
+  )
 
-trans_separate <- trans_separate %>%
+#reformat operation into 5 new columns
+trans <- trans %>%
   mutate(creditcard_wd = case_when(
     operation == 'VYBER KARTOU' ~ 1,
-    TRUE ~ 0
-  ))
+    TRUE ~ 0)
+  )
   
-trans_separate <- trans_separate %>%
+trans <- trans %>%
   mutate(credit_cash = case_when(
     operation == 'VKLAD' ~ 1,
-    TRUE ~ 0
-  ))
+    TRUE ~ 0)
+  )
 
-trans_separate <- trans_separate %>%
+trans <- trans %>%
   mutate(col_from_other_bank = case_when(
     operation == 'PREVOD Z UCTU' ~ 1, 
-    TRUE ~0
-  ))
-trans_separate <- trans_separate %>%
+    TRUE ~ 0)
+  )
+
+trans <- trans %>%
   mutate(wd_cash = case_when(
-    operation == 'VYBER' ~1,
-    TRUE ~0
-  ))
-trans_separate <- trans_separate %>%
+    operation == 'VYBER' ~ 1,
+    TRUE ~ 0)
+  )
+
+trans <- trans %>%
   mutate(rem_to_other_bank = case_when(
-    operation == 'PREVOD NA UCET' ~1,
-    TRUE ~0
-  ))
+    operation == 'PREVOD NA UCET' ~ 1,
+    TRUE ~ 0)
+  )
 
-trans_separate <- trans_separate %>%
+#reformat k_symbol into 7 new columns
+trans <- trans %>%
   mutate(ks_insurrance_payment = case_when(
-    k_symbol == 'POJISTNE' ~1,
-    TRUE ~0
-  ))
+    k_symbol == 'POJISTNE' ~ 1,
+    TRUE ~ 0)
+  )
 
-trans_separate <- trans_separate %>%
-  mutate(ks_insurrance_payment = case_when(
-    k_symbol == 'POJISTNE' ~1,
-    TRUE ~0
-  ))
-
-trans_separate <- trans_separate %>%
+trans <- trans %>%
   mutate(ks_payment_of_statement = case_when(
-    k_symbol == 'SLUZBY' ~1,
-    TRUE ~0
-  ))
-trans_separate <- trans_separate %>%
-  mutate(ks_interest_redit = case_when(
-    k_symbol == 'UROK' ~1,
-    TRUE ~0
-  ))
-trans_separate <- trans_separate %>%
+    k_symbol == 'SLUZBY' ~ 1,
+    TRUE ~ 0)
+  )
+
+trans <- trans %>%
+  mutate(ks_interest_credit = case_when(
+    k_symbol == 'UROK' ~ 1,
+    TRUE ~ 0)
+  )
+
+trans <- trans %>%
   mutate(ks_interest_if_n_balance = case_when(
-    k_symbol == 'SANKC. UROK' ~1,
-    TRUE ~0
-  ))
-trans_separate <- trans_separate %>%
+    k_symbol == 'SANKC. UROK' ~ 1,
+    TRUE ~ 0)
+  )
+
+trans <- trans %>%
   mutate(ks_household = case_when(
-    k_symbol == 'SIPO' ~1,
-    TRUE ~0
-  ))
-trans_separate <- trans_separate %>%
+    k_symbol == 'SIPO' ~ 1,
+    TRUE ~ 0)
+  )
+
+trans <- trans %>%
   mutate(ks_old_age_pension = case_when(
-    k_symbol == 'DUCHOD' ~1,
-    TRUE ~0
-  ))
-trans_separate <- trans_separate %>%
+    k_symbol == 'DUCHOD' ~ 1,
+    TRUE ~ 0)
+  )
+
+trans <- trans %>%
   mutate(ks_loan_payment = case_when(
-    k_symbol == 'UVER' ~1,
-    TRUE ~0
-  ))
+    k_symbol == 'UVER' ~ 1,
+    TRUE ~ 0)
+  )
+
+#factorize variables
+trans <- trans %>%
+  mutate(type = as_factor(type),credit = as_factor(credit), withdrawal = as_factor(withdrawal), 
+         creditcard_wd = as_factor(creditcard_wd),
+         operation = as_factor(operation), credit_cash = as_factor(credit_cash), 
+         col_from_other_bank = as_factor(col_from_other_bank), wd_cash = as_factor(wd_cash), 
+         rem_to_other_bank = as_factor(rem_to_other_bank), ks_insurrance_payment = as_factor(ks_insurrance_payment),
+         k_symbol = as_factor(k_symbol), ks_insurrance_payment = as_factor(ks_insurrance_payment),
+         ks_payment_of_statement = as_factor(ks_payment_of_statement), 
+         ks_interest_credit = as_factor(ks_interest_credit), 
+         ks_interest_if_n_balance = as_factor(ks_interest_if_n_balance), ks_household = as_factor(ks_household),
+         ks_old_age_pension = as_factor(ks_old_age_pension), ks_loan_payment = as_factor(ks_loan_payment))
+
+str(trans)
+
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
-
-
-ich glaub jetzt gods
