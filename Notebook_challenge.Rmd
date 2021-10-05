@@ -21,7 +21,7 @@ account <- read.csv('./account.csv', sep = ";")
 card <- read.csv('./card.csv', sep = ";")
 client <- read.csv('./client.csv', sep = ";")
 disp <- read.csv('./disp.csv', sep = ";")
-#district <- read.csv('./district.csv')
+district <- read.csv('./district.csv')
 loan <- read.csv('./loan.csv', sep = ";")
 order <- read.csv('./order.csv', sep = ";")
 trans <- read.csv('./trans.csv', sep = ";")
@@ -81,24 +81,22 @@ account <- account %>%
     TRUE ~ 0)
   )
 
+
 #reformat date
-account$date_dmy <- format(as.Date(as.character(account$date), "%y%m%d"), "%d.%m.%Y") 
-# account <- account %>%
-#   mutate(
-#     date = as.Date(date,"%y%m%d" )
-#   )
+account$date_dmy <- format(as.Date(as.character(account$date), "%y%m%d"), "%d/%m/%Y") 
 
 # account <- account %>%
 #   select(-date)
 
 #factorize variables
 account <- account %>% 
-  mutate (frequency = as_factor(frequency), issuance_monthly = as_factor(issuance_monthly), 
-          issuance_weekly = as_factor(issuance_weekly), issuance_transaction = as_factor(issuance_transaction))
+  mutate (frequency = as_factor(frequency), 
+          issuance_monthly = as_factor(issuance_monthly), 
+          issuance_weekly = as_factor(issuance_weekly), 
+          issuance_transaction = as_factor(issuance_transaction)
+          )
 
-str(account)
-class(date_dmy)
-    
+#str(account)
 ```
 
 clean/organize card
@@ -124,19 +122,22 @@ card <- card %>%
   )
 
 #reformat date
-card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "%d.%m.%Y")
-card <- card %>%
-  select(-issued)
+card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "%d/%m/%Y")
+#card <- card %>%
+  #select(-issued)
 
 
 
 
 #factorize variables
 card <- card %>%
-  mutate(type = as_factor(type), junior_card = as_factor(junior_card), classic_card = as_factor(classic_card),
-         gold_card = as_factor(gold_card))
+  mutate(type = as_factor(type), 
+         junior_card = as_factor(junior_card), 
+         classic_card = as_factor(classic_card),
+         gold_card = as_factor(gold_card)
+         )
 
-str(card)
+#str(card)
   
 ```
 
@@ -169,9 +170,11 @@ client <- client %>%
 
 #factorize variables
 client <- client %>%
-  mutate(district_id = as_factor(district_id), gender = as_factor(gender))
+  mutate(district_id = as_factor(district_id), 
+         gender = as_factor(gender)
+         )
 
-str(client)
+#str(client)
   
 ```
 
@@ -192,9 +195,12 @@ disp <- disp %>%
 
 #factorize variables
 disp <- disp %>%
-  mutate(type = as_factor(type), owner = as_factor(owner), disponent = as_factor(disponent))
+  mutate(type = as_factor(type), 
+         owner = as_factor(owner), 
+         disponent = as_factor(disponent)
+         )
 
-str(disp)
+#str(disp)
 ```
 
 clean/organize district
@@ -212,9 +218,12 @@ district <- district %>%
 
 #change datatype to numeric/int
 district <- district %>% 
-  mutate(unemployment_rate_1995 = as.numeric(unemployment_rate_1995), enterpreneurs_per_1000 = strtoi(enterpreneurs_per_1000), crimes_1995 = strtoi(crimes_1995))
+  mutate(unemployment_rate_1995 = as.numeric(unemployment_rate_1995), 
+         enterpreneurs_per_1000 = strtoi(enterpreneurs_per_1000), 
+         crimes_1995 = strtoi(crimes_1995)
+         )
 
-str(district)
+#str(district)
 
 ```
 
@@ -253,11 +262,16 @@ loan <- loan %>%
 
 #factorize variables
 loan <- loan %>%
-  mutate(duration = as_factor(duration), status = as_factor(status), in_debt = as_factor(in_debt), 
-         ok_so_far = as_factor(ok_so_far), loan_not_payed = as_factor(loan_not_payed), 
-         payed_off = as_factor(payed_off))
+  mutate(duration = as_factor(duration), 
+         status = as_factor(status),
+         in_debt = as_factor(in_debt), 
+         ok_so_far = as_factor(ok_so_far), 
+         loan_not_payed = as_factor(loan_not_payed), 
+         payed_off = as_factor(payed_off)
+         )
 
-str(loan)
+
+#str(loan)
 
 ```
 
@@ -291,11 +305,15 @@ order <- order %>%
 
 #factorize variables
 order <- order %>%
-  mutate(bank_to = as_factor(bank_to), k_symbol = as_factor(k_symbol), 
-         insurrance_payment = as_factor(insurrance_payment), household = as_factor(household), 
-         for_leasing = as_factor(for_leasing), loan_payment = as_factor(loan_payment))
+  mutate(bank_to = as_factor(bank_to), 
+         k_symbol = as_factor(k_symbol), 
+         insurrance_payment = as_factor(insurrance_payment), 
+         household = as_factor(household), 
+         for_leasing = as_factor(for_leasing), 
+         loan_payment = as_factor(loan_payment)
+         )
 
-str(order)
+#str(order)
 ```
 
 clean/organize trans
@@ -395,18 +413,26 @@ trans <- trans %>%
 
 #factorize variables
 trans <- trans %>%
-  mutate(type = as_factor(type),credit = as_factor(credit), withdrawal = as_factor(withdrawal), 
+  mutate(type = as_factor(type),
+         credit = as_factor(credit), 
+         withdrawal = as_factor(withdrawal), 
          creditcard_wd = as_factor(creditcard_wd),
-         operation = as_factor(operation), credit_cash = as_factor(credit_cash), 
-         col_from_other_bank = as_factor(col_from_other_bank), wd_cash = as_factor(wd_cash), 
-         rem_to_other_bank = as_factor(rem_to_other_bank), ks_insurrance_payment = as_factor(ks_insurrance_payment),
-         k_symbol = as_factor(k_symbol), ks_insurrance_payment = as_factor(ks_insurrance_payment),
+         operation = as_factor(operation), 
+         credit_cash = as_factor(credit_cash), 
+         col_from_other_bank = as_factor(col_from_other_bank), 
+         wd_cash = as_factor(wd_cash), 
+         rem_to_other_bank = as_factor(rem_to_other_bank), 
+         ks_insurrance_payment = as_factor(ks_insurrance_payment),
+         k_symbol = as_factor(k_symbol), 
+         ks_insurrance_payment = as_factor(ks_insurrance_payment),
          ks_payment_of_statement = as_factor(ks_payment_of_statement), 
          ks_interest_credit = as_factor(ks_interest_credit), 
-         ks_interest_if_n_balance = as_factor(ks_interest_if_n_balance), ks_household = as_factor(ks_household),
-         ks_old_age_pension = as_factor(ks_old_age_pension), ks_loan_payment = as_factor(ks_loan_payment))
+         ks_interest_if_n_balance = as_factor(ks_interest_if_n_balance), 
+         ks_household = as_factor(ks_household),
+         ks_old_age_pension = as_factor(ks_old_age_pension), 
+         ks_loan_payment = as_factor(ks_loan_payment))
 
-str(trans)
+#str(trans)
 
 ```
 
