@@ -83,8 +83,10 @@ account <- account %>%
 
 #reformat date
 account$date_dmy <- format(as.Date(as.character(account$date), "%y%m%d"), "%d.%m.%Y") 
-#date <- format(as.Date(date,"%d.%m.%Y"))
-#account$date <- as.Date(date, format, tryFormats = c("%YY%mm%dd", "%Y/%m/%d"))
+# account <- account %>%
+#   mutate(
+#     date = as.Date(date,"%y%m%d" )
+#   )
 
 # account <- account %>%
 #   select(-date)
