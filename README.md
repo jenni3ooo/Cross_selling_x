@@ -26,4 +26,6 @@ altersverteilung/gendervertielung auf kartentypen - ältere mehr geld?
  - avgsalary in district compared to loans
  - avgsalary compared to gender / age in this district
  - fall/steigung der crimerate compared to loan payments?
+ 
+ 
  - 
