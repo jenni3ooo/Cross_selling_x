@@ -83,7 +83,7 @@ account <- account %>%
 
 
 #reformat date
-account$date_dmy <- format(as.Date(as.character(account$date), "%y%m%d"), "%d/%m/%Y") 
+account$date_ymd <- format(as.Date(as.character(account$date), "%y%m%d"), "%y/%m/%d") 
 
 # account <- account %>%
 #   select(-date)
@@ -93,7 +93,8 @@ account <- account %>%
   mutate (frequency = as_factor(frequency), 
           issuance_monthly = as_factor(issuance_monthly), 
           issuance_weekly = as_factor(issuance_weekly), 
-          issuance_transaction = as_factor(issuance_transaction)
+          issuance_transaction = as_factor(issuance_transaction),
+          date_ymd = as.Date(date_ymd)
           )
 
 #str(account)
@@ -122,7 +123,7 @@ card <- card %>%
   )
 
 #reformat date
-card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "%d/%m/%Y")
+card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "%y/%m/%d")
 #card <- card %>%
   #select(-issued)
 
@@ -134,7 +135,8 @@ card <- card %>%
   mutate(type = as_factor(type), 
          junior_card = as_factor(junior_card), 
          classic_card = as_factor(classic_card),
-         gold_card = as_factor(gold_card)
+         gold_card = as_factor(gold_card),
+         issued_date = as.Date(issued_date)
          )
 
 #str(card)
@@ -164,14 +166,15 @@ client <- client %>%
     TRUE ~ birth_number)
   )
 
-client$birthday <- format(as.Date(as.character(client$birth_number), "%y%m%d"), "%d.%m.%Y")
-client <- client %>%
-  select(-birth_number)
+client$birthday <- format(as.Date(as.character(client$birth_number), "%y%m%d"), "%y/%m/%d")
+# client <- client %>%
+#   select(-birth_number)
 
 #factorize variables
 client <- client %>%
   mutate(district_id = as_factor(district_id), 
-         gender = as_factor(gender)
+         gender = as_factor(gender),
+         birthday = as.Date(birthday)
          )
 
 #str(client)
@@ -231,7 +234,7 @@ clean/organize loan
 ```{r}
 
 #reformat date
-loan$date_issued <- format(as.Date(as.character(loan$date), "%y%m%d"), "%d.%m.%Y")
+loan$date_issued <- format(as.Date(as.character(loan$date), "%y%m%d"), "%y/%m/%d")
 loan <- loan %>%
   select(-date)
 
@@ -267,7 +270,8 @@ loan <- loan %>%
          in_debt = as_factor(in_debt), 
          ok_so_far = as_factor(ok_so_far), 
          loan_not_payed = as_factor(loan_not_payed), 
-         payed_off = as_factor(payed_off)
+         payed_off = as_factor(payed_off),
+         date_issued = as.Date(date_issued)
          )
 
 
@@ -320,7 +324,7 @@ clean/organize trans
 ```{r}
 
 #reformat date
-trans$date_dmy <- format(as.Date(as.character(trans$date), "%y%m%d"), "%d.%m.%Y")
+trans$date_dmy <- format(as.Date(as.character(trans$date), "%y%m%d"), "%y/%m/%d")
 trans <- trans %>%
   select(-date)
 
@@ -430,7 +434,9 @@ trans <- trans %>%
          ks_interest_if_n_balance = as_factor(ks_interest_if_n_balance), 
          ks_household = as_factor(ks_household),
          ks_old_age_pension = as_factor(ks_old_age_pension), 
-         ks_loan_payment = as_factor(ks_loan_payment))
+         ks_loan_payment = as_factor(ks_loan_payment),
+         date_dmy = as.Date(date_dmy)
+         )
 
 #str(trans)
 
