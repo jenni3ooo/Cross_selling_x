@@ -1,9 +1,11 @@
 ---
-title: "R Notebook"
+title: "1Da Cross-selling in banking challenge - Alessia / Jenni"
 output: html_notebook
 ---
+We are working with a dataset from a czech bank. 
 
-load  
+Below we have loaded all the packages and data as well as organized and sturctured it so we can work with it.
+loading all packages and data
 ```{r}
 library(tidyverse)
 library(tidymodels)
@@ -19,7 +21,7 @@ account <- read.csv('./account.csv', sep = ";")
 card <- read.csv('./card.csv', sep = ";")
 client <- read.csv('./client.csv', sep = ";")
 disp <- read.csv('./disp.csv', sep = ";")
-district <- read.csv('./district.csv', sep = ";")
+district <- read.csv('./district.csv')
 loan <- read.csv('./loan.csv', sep = ";")
 order <- read.csv('./order.csv', sep = ";")
 trans <- read.csv('./trans.csv', sep = ";")
@@ -40,8 +42,8 @@ separate in columns
 # client <- client %>%
 #   separate(client_id.birth_number.district_id, c('client_id','birth_num','district_id'),';')
 # 
-# district <- district %>%
-#   separate(A1.A2.A3.A4.A5.A6.A7.A8.A9.A10.A11.A12.A13.A14.A15.A16, c('district_code','district_name','region','no_of_inhabitants','no_of_municipalities_with_inhabitants_<_499','no_of_municipalities_with_inhabitants_500-1999','no_of_municipalities_with_inhabitants_2000-9999','no_of_municipalities_with_inhabitants_>10000','no_of_cities','ratio_of_urban_inhabitants','avg_salary','unemploymant_rate_95','unemploymant_rate_96','no_of_enterpreneurs_per_1000_inhabitants','no_of_commited_crimes_95','no_of_commited_crimes_96'),';')
+ district <- district %>%
+   separate(A1.A2.A3.A4.A5.A6.A7.A8.A9.A10.A11.A12.A13.A14.A15.A16, c('district_code','district_name','region','no_of_inhabitants','no_of_municipalities_with_inhabitants_<_499','no_of_municipalities_with_inhabitants_500-1999','no_of_municipalities_with_inhabitants_2000-9999','no_of_municipalities_with_inhabitants_>10000','no_of_cities','ratio_of_urban_inhabitants','avg_salary','unemploymant_rate_95','unemploymant_rate_96','no_of_enterpreneurs_per_1000_inhabitants','no_of_commited_crimes_95','no_of_commited_crimes_96'),';')
 # 
 # disp <- disp %>%
 #   separate(disp_id.client_id.account_id.type, c('disp_id','client_id','account_id','type_of_disposition'),';')
@@ -81,8 +83,11 @@ account <- account %>%
 
 #reformat date
 account$date_dmy <- format(as.Date(as.character(account$date), "%y%m%d"), "%d.%m.%Y") 
-account <- account %>%
-  select(-date)
+#date <- format(as.Date(date,"%d.%m.%Y"))
+#account$date <- as.Date(date, format, tryFormats = c("%YY%mm%dd", "%Y/%m/%d"))
+
+# account <- account %>%
+#   select(-date)
 
 #factorize variables
 account <- account %>% 
@@ -90,6 +95,7 @@ account <- account %>%
           issuance_weekly = as_factor(issuance_weekly), issuance_transaction = as_factor(issuance_transaction))
 
 str(account)
+class(date_dmy)
     
 ```
 
@@ -119,6 +125,9 @@ card <- card %>%
 card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "%d.%m.%Y")
 card <- card %>%
   select(-issued)
+
+
+
 
 #factorize variables
 card <- card %>%
@@ -399,4 +408,12 @@ str(trans)
 
 ```
 
+
+Fragestellung Recherche Jenni
+```{r}
+
+
+
+
+```
 
