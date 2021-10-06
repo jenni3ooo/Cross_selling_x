@@ -474,29 +474,62 @@ Fragestellung Recherche Jenni
 
 Quick overview research to get to know the outlines of the dataset and decide where to go deeper.
 
+
+First i wanted to see the genderdistribution of the clients.
+
+As we can see in the Plot below, there are slightly less women than man, but over all the gender is pretty balanced out.
 ```{r}
 client_gender <-ggplot(
   client, aes(x = gender, fill = gender))+
   geom_bar()+
-  ggtitle('
-          Clients spread on age
-          ')+
+  ggtitle('\nClients spread on gender\n')+
   theme(
     plot.title = element_text(hjust = 0.5)
-    )
-  
+    )+
+  labs( y= '\nNumber of Clients\n', x = '\nGender\n')
 client_gender
 
 ```
+
+The general information of the Age of the clients is a good base information as well.
+
+
 ```{r}
 client_age <- ggplot(
-  client, aes(x = age, fill = gender))+
-  geom_line()+
-  ggtitle('Clientspread on age, separated by gender')+
+  client, aes(x = age,colour = gender))+
+  # geom_bar(alpha = 0.5)+
+  geom_density()+
+  ggtitle('\nClientspread on age, separated by gender\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )+
+  labs( y= '\ndensity\n', x = '\nAge\n')
+  
+client_age
+```
+
+```{r}
+card_type <- ggplot(
+  card, aes(x = type, fill = type))+
+  geom_bar()+
+  ggtitle('\nSpread of card types\n')+
   theme(
     plot.title = element_text(hjust = 0.5)
     )
   
-client_age
+card_type
+
+
 ```
+
+
+```{r}
+
+```
+
+
+
+
+
+
 
