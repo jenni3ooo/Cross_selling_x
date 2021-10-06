@@ -148,6 +148,11 @@ clean/organize client (Dani fragen)
 
 #reformat birth_number
 client <- client %>%
+  mutate(
+    birth_number = birth_number + 19000000
+  )
+
+client <- client %>%
   mutate(month = substr(birth_number, 3, 4)) %>%
   mutate(month = strtoi(month))
 
@@ -166,6 +171,8 @@ client <- client %>%
     TRUE ~ birth_number)
   )
 
+
+
 client$birthday <- format(as.Date(as.character(client$birth_number), "%y%m%d"), "%y/%m/%d")
 # client <- client %>%
 #   select(-birth_number)
@@ -177,17 +184,21 @@ client <- client %>%
          birthday = as.Date(birthday)
          )
 
+
 #str(client)
   
 ```
 
 birthday proper shape
 ```{r}
-
+client <- client %>%
+  mutate(
+    birth_number = birth_number + 19000000
+  )
 
 # client <- client %>%
-#   birth_number + '19' 
-````
+#   birth_number += '19' 
+```
 
 clean/organize disp
 ```{r}
