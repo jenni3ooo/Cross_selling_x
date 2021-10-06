@@ -180,8 +180,18 @@ client <- client %>%
          gender = as_factor(gender),
          birthday = as.Date(birthday)
          )
+project_date = '1998/1/1'
+
+library(eeptools)
+x <- as.Date(c("1998-01-01"))
 
 
+client$age <- floor(age_calc(as.Date(client$birthday),x, units = "years"))
+
+# client <- client %>%
+#   mutate(age = 
+#     
+#   )
 
 #str(client)
   
