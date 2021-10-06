@@ -21,7 +21,7 @@ account <- read.csv('./account.csv', sep = ";")
 card <- read.csv('./card.csv', sep = ";")
 client <- read.csv('./client.csv', sep = ";")
 disp <- read.csv('./disp.csv', sep = ";")
-district <- read.csv('./district.csv')
+district <- read.csv('./district.csv', sep = ';')
 loan <- read.csv('./loan.csv', sep = ";")
 order <- read.csv('./order.csv', sep = ";")
 trans <- read.csv('./trans.csv', sep = ";")
@@ -42,8 +42,8 @@ separate in columns
 # client <- client %>%
 #   separate(client_id.birth_number.district_id, c('client_id','birth_num','district_id'),';')
 # 
- district <- district %>%
-   separate(A1.A2.A3.A4.A5.A6.A7.A8.A9.A10.A11.A12.A13.A14.A15.A16, c('district_code','district_name','region','no_of_inhabitants','no_of_municipalities_with_inhabitants_<_499','no_of_municipalities_with_inhabitants_500-1999','no_of_municipalities_with_inhabitants_2000-9999','no_of_municipalities_with_inhabitants_>10000','no_of_cities','ratio_of_urban_inhabitants','avg_salary','unemploymant_rate_95','unemploymant_rate_96','no_of_enterpreneurs_per_1000_inhabitants','no_of_commited_crimes_95','no_of_commited_crimes_96'),';')
+ # district <- district %>%
+ #   separate(A1.A2.A3.A4.A5.A6.A7.A8.A9.A10.A11.A12.A13.A14.A15.A16, c('district_code','district_name','region','no_of_inhabitants','no_of_municipalities_with_inhabitants_<_499','no_of_municipalities_with_inhabitants_500-1999','no_of_municipalities_with_inhabitants_2000-9999','no_of_municipalities_with_inhabitants_>10000','no_of_cities','ratio_of_urban_inhabitants','avg_salary','unemploymant_rate_95','unemploymant_rate_96','no_of_enterpreneurs_per_1000_inhabitants','no_of_commited_crimes_95','no_of_commited_crimes_96'),';')
 # 
 # disp <- disp %>%
 #   separate(disp_id.client_id.account_id.type, c('disp_id','client_id','account_id','type_of_disposition'),';')
@@ -83,7 +83,7 @@ account <- account %>%
 
 
 #reformat date
-account$date_ymd <- format(as.Date(as.character(account$date), "%y%m%d"), "%y/%m/%d") 
+account$date_ymd <- format(as.Date(as.character(account$date), "%y%m%d"), "19%y/%m/%d") 
 
 # account <- account %>%
 #   select(-date)
@@ -123,7 +123,7 @@ card <- card %>%
   )
 
 #reformat date
-card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "%y/%m/%d")
+card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "19%y/%m/%d")
 #card <- card %>%
   #select(-issued)
 
@@ -140,6 +140,7 @@ card <- card %>%
          )
 
 #str(card)
+
   
 ```
 
@@ -147,6 +148,7 @@ clean/organize client (Dani fragen)
 ```{r}
 
 #reformat birth_number
+
 client <- client %>%
   mutate(month = substr(birth_number, 3, 4)) %>%
   mutate(month = strtoi(month))
@@ -166,7 +168,9 @@ client <- client %>%
     TRUE ~ birth_number)
   )
 
-client$birthday <- format(as.Date(as.character(client$birth_number), "%y%m%d"), "%y/%m/%d")
+
+
+client$birthday <- format(as.Date(as.character(client$birth_number), "%y%m%d"), "19%y/%m/%d")
 # client <- client %>%
 #   select(-birth_number)
 
@@ -176,9 +180,32 @@ client <- client %>%
          gender = as_factor(gender),
          birthday = as.Date(birthday)
          )
+project_date = '1998/1/1'
+
+library(eeptools)
+x <- as.Date(c("1998-01-01"))
+
+
+client$age <- floor(age_calc(as.Date(client$birthday),x, units = "years"))
+
+# client <- client %>%
+#   mutate(age = 
+#     
+#   )
 
 #str(client)
   
+```
+
+birthday proper shape
+```{r}
+client <- client %>%
+  mutate(
+    birth_number = birth_number + 19000000
+  )
+
+# client <- client %>%
+#   birth_number += '19' 
 ```
 
 clean/organize disp
@@ -234,7 +261,7 @@ clean/organize loan
 ```{r}
 
 #reformat date
-loan$date_issued <- format(as.Date(as.character(loan$date), "%y%m%d"), "%y/%m/%d")
+loan$date_issued <- format(as.Date(as.character(loan$date), "%y%m%d"), "19%y/%m/%d")
 loan <- loan %>%
   select(-date)
 
@@ -324,7 +351,7 @@ clean/organize trans
 ```{r}
 
 #reformat date
-trans$date_dmy <- format(as.Date(as.character(trans$date), "%y%m%d"), "%y/%m/%d")
+trans$date_dmy <- format(as.Date(as.character(trans$date), "%y%m%d"), "19%y/%m/%d")
 trans <- trans %>%
   select(-date)
 
@@ -444,10 +471,65 @@ trans <- trans %>%
 
 
 Fragestellung Recherche Jenni
+
+Quick overview research to get to know the outlines of the dataset and decide where to go deeper.
+
+
+First i wanted to see the genderdistribution of the clients.
+
+As we can see in the Plot below, there are slightly less women than man, but over all the gender is pretty balanced out.
 ```{r}
+client_gender <-ggplot(
+  client, aes(x = gender, fill = gender))+
+  geom_bar()+
+  ggtitle('\nClients spread on gender\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )+
+  labs( y= '\nNumber of Clients\n', x = '\nGender\n')
+client_gender
+
+```
+
+The general information of the Age of the clients is a good base information as well.
 
 
+```{r}
+client_age <- ggplot(
+  client, aes(x = age,colour = gender))+
+  # geom_bar(alpha = 0.5)+
+  geom_density()+
+  ggtitle('\nClientspread on age, separated by gender\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )+
+  labs( y= '\ndensity\n', x = '\nAge\n')
+  
+client_age
+```
+
+```{r}
+card_type <- ggplot(
+  card, aes(x = type, fill = type))+
+  geom_bar()+
+  ggtitle('\nSpread of card types\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+  
+card_type
 
 
 ```
+
+
+```{r}
+
+```
+
+
+
+
+
+
 
