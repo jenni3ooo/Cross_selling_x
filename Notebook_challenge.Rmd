@@ -83,7 +83,7 @@ account <- account %>%
 
 
 #reformat date
-account$date_ymd <- format(as.Date(as.character(account$date), "%y%m%d"), "%y/%m/%d") 
+account$date_ymd <- format(as.Date(as.character(account$date), "%y%m%d"), "19%y/%m/%d") 
 
 # account <- account %>%
 #   select(-date)
@@ -123,7 +123,7 @@ card <- card %>%
   )
 
 #reformat date
-card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "%y/%m/%d")
+card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "19%y/%m/%d")
 #card <- card %>%
   #select(-issued)
 
@@ -140,6 +140,7 @@ card <- card %>%
          )
 
 #str(card)
+
   
 ```
 
@@ -147,6 +148,7 @@ clean/organize client (Dani fragen)
 ```{r}
 
 #reformat birth_number
+
 client <- client %>%
   mutate(month = substr(birth_number, 3, 4)) %>%
   mutate(month = strtoi(month))
@@ -166,7 +168,9 @@ client <- client %>%
     TRUE ~ birth_number)
   )
 
-client$birthday <- format(as.Date(as.character(client$birth_number), "%y%m%d"), "%y/%m/%d")
+
+
+client$birthday <- format(as.Date(as.character(client$birth_number), "%y%m%d"), "19%y/%m/%d")
 # client <- client %>%
 #   select(-birth_number)
 
@@ -177,8 +181,30 @@ client <- client %>%
          birthday = as.Date(birthday)
          )
 
+library(eeptools)
+x <- as.Date(c("1998-01-01"))
+
+
+client$age <- floor(age_calc(as.Date(client$birthday),x, units = "years"))
+
+# client <- client %>%
+#   mutate(age = 
+#     
+#   )
+
 #str(client)
   
+```
+
+birthday proper shape
+```{r}
+client <- client %>%
+  mutate(
+    birth_number = birth_number + 19000000
+  )
+
+# client <- client %>%
+#   birth_number += '19' 
 ```
 
 clean/organize disp
@@ -234,7 +260,7 @@ clean/organize loan
 ```{r}
 
 #reformat date
-loan$date_issued <- format(as.Date(as.character(loan$date), "%y%m%d"), "%y/%m/%d")
+loan$date_issued <- format(as.Date(as.character(loan$date), "%y%m%d"), "19%y/%m/%d")
 loan <- loan %>%
   select(-date)
 
@@ -324,9 +350,7 @@ clean/organize trans
 ```{r}
 
 #reformat date
-trans$date_dmy <- format(as.Date(as.character(trans$date), "%y%m%d"), "%y/%m/%d")
-trans <- trans %>%
-  select(-date)
+trans$date_dmy <- format(as.Date(as.character(trans$date), "%y%m%d"), "19%y/%m/%d")
 
 #reformat type into 2 new columns
 trans <- trans %>%
@@ -444,10 +468,71 @@ trans <- trans %>%
 
 
 Fragestellung Recherche Jenni
+
+Quick overview research to get to know the outlines of the dataset and decide where to go deeper.
+
+
+First i wanted to see the genderdistribution of the clients.
+
+As we can see in the Plot below, there are slightly less women than man, but over all the gender is pretty balanced out.
 ```{r}
+client_gender_j <-ggplot(
+  client, aes(x = gender, fill = gender))+
+  geom_bar()+
+  ggtitle('\nClients spread on gender\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )+
+  labs( y= '\nNumber of Clients\n', x = '\nGender\n')
+client_gender_j
+
+```
 
 
+
+The general information of the Age of the clients is a good base information as well.
+
+We gan see in the plot below most clients are between 20 and 55 years old. 
+
+```{r}
+client_age_j <- ggplot(
+  client, aes(x = age,colour = gender))+
+  # geom_bar(alpha = 0.5)+
+  geom_density()+
+  ggtitle('\nClientspread on age, separated by gender\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )+
+  labs( y= '\ndensity\n', x = '\nAge\n')
+  
+client_age_j
+```
+
+
+
+
+```{r}
+card_type_j <- ggplot(
+  card, aes(x = type, fill = type))+
+  geom_bar()+
+  ggtitle('\nSpread of card types\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+  
+card_type_j
 
 
 ```
+
+
+```{r}
+
+```
+
+
+
+
+
+
 

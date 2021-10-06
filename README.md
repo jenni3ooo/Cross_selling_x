@@ -1,5 +1,19 @@
 Fragenstellung Jenni:
 
+- Welche zielgruppe zahlt Kredite am zuverlässigsten und unzuverlägsten zurück?
+        - ärmere , jüngere klienten, zahlen schlechter als ältere  gut verdiener
+
+- Wer ist die zielgruppe für kredite? gibt es geschlechterunterschiede?
+        Frauen nehmen weniger kredite auf. 
+        
+- Vermögen vergleichen auf kriminalität.
+- Vermögen vergleichen auf urban und ländlich.
+
+
+
+
+- Accounts die zu 2 oder mehr Personen gehören 
+
 - häufigkeit der Kontoauszüge district bezogen, wenn ja warum, stadt/land etc?
 - accounteröffnungs zusammenhang mit district.
 
@@ -17,15 +31,13 @@ altersverteilung/gendervertielung auf kartentypen - ältere mehr geld?
  
  - gründe der transaction. 
  
- 
- 
  - zusammenhänge übergreiffend, viele transactions wenn grosses loan? 
- 
  
  - mehr credite in district mit mehr unemployment/ criminal rate / vergleich land/urban 
  - avgsalary in district compared to loans
  - avgsalary compared to gender / age in this district
  - fall/steigung der crimerate compared to loan payments?
  
+ - war das konto lange leer? welche zielgruppe
  
  - 
