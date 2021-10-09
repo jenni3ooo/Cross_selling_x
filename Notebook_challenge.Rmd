@@ -466,6 +466,12 @@ trans <- trans %>%
 
 ```
 
+Bring together client and disp
+```{r}
+client_disp <- full_join(
+    disp,client, by = 'client_id'
+)
+```
 
 Fragestellung Recherche Jenni
 
@@ -488,6 +494,20 @@ client_gender_j
 
 ```
 
+```{r}
+client_owner_j <-ggplot(
+  client_disp, aes(x = gender,fill = type))+
+  geom_bar()+
+  ggtitle('\nOwner spread on gender\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )+
+  labs( y= '\nNumber of Clients\n', x = '\nGender\n')
+client_owner_j
+
+
+
+```
 
 
 The general information of the Age of the clients is a good base information as well.
@@ -496,8 +516,8 @@ We gan see in the plot below most clients are between 20 and 55 years old.
 
 ```{r}
 client_age_j <- ggplot(
-  client, aes(x = age,colour = gender))+
-  # geom_bar(alpha = 0.5)+
+  client, aes(x = age, colour = gender))+
+  #geom_bar(alpha = 0.5)+
   geom_density()+
   ggtitle('\nClientspread on age, separated by gender\n')+
   theme(
@@ -527,6 +547,8 @@ card_type_j
 
 
 ```{r}
+
+
 
 ```
 
