@@ -471,6 +471,10 @@ Bring together client and disp
 client_disp <- full_join(
     disp,client, by = 'client_id'
 )
+
+client_disp <- full_join(
+  client_disp, card, by = 'disp_id'
+)
 ```
 
 Fragestellung Recherche Jenni
@@ -498,15 +502,12 @@ client_gender_j
 client_owner_j <-ggplot(
   client_disp, aes(x = gender,fill = type))+
   geom_bar()+
-  ggtitle('\nOwner spread on gender\n')+
+  ggtitle('\nOwner/Disponent spread on gender\n')+
   theme(
     plot.title = element_text(hjust = 0.5)
     )+
   labs( y= '\nNumber of Clients\n', x = '\nGender\n')
 client_owner_j
-
-
-
 ```
 
 
@@ -547,6 +548,16 @@ card_type_j
 
 
 ```{r}
+card_type_g_j <- ggplot(
+  card, aes(x = type, fill = gender))+
+  geom_bar()+
+  ggtitle('\nSpread of card types\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+  
+card_type_g_j
+
 
 
 
