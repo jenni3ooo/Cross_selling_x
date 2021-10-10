@@ -477,6 +477,14 @@ client_disp <- full_join(
 )
 ```
 
+
+Districts
+```{r}
+
+
+
+```
+
 Fragestellung Recherche Jenni
 
 Quick overview research to get to know the outlines of the dataset and decide where to go deeper.
@@ -500,7 +508,7 @@ client_gender_j
 
 ```{r}
 client_owner_j <-ggplot(
-  client_disp, aes(x = gender,fill = type))+
+  client_disp, aes(x = gender,fill = type.x))+
   geom_bar()+
   ggtitle('\nOwner/Disponent spread on gender\n')+
   theme(
@@ -508,6 +516,32 @@ client_owner_j <-ggplot(
     )+
   labs( y= '\nNumber of Clients\n', x = '\nGender\n')
 client_owner_j
+
+#weiter untersuchen, wer macht die Überweisungen und altersgruppen
+#check mit count
+
+print(count(client_disp))
+
+owner_total <- sum(client_disp$type.x == 'OWNER')
+cat('Total OWNER:', owner_total) 
+
+dispo_total <- sum(client_disp$type.x == 'DISPONENT')
+cat('Total DISPONENT: ', dispo_total)
+
+female_client <- sum(client_disp$gender == 'f')
+cat('Total female clients: ',female_client)
+
+male_client <- sum(client_disp$gender == 'm')
+cat('Total male clients: ',female_client)
+
+print('There is an equal amount of male and female clients. That is very surprising. We will have a deeper look at this.')
+# da stimmt etwas nicht. Bei clients sagts es sind 5369 observationen, wenn mann nach gender odrnet sind immer zu viele das erste geschlecht.????
+
+
+
+
+      
+
 ```
 
 
