@@ -475,6 +475,17 @@ client_disp <- full_join(
 client_disp <- full_join(
   client_disp, card, by = 'disp_id'
 )
+
+gender_group <- client_disp %>%
+ count(gender)
+gender_group
+
+gen_client_group <- client_disp %>%
+  count(type.x)
+gen_client_group
+
+
+
 ```
 
 
