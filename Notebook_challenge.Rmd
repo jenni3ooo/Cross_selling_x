@@ -88,8 +88,8 @@ account <- account %>%
 #reformat date
 account$date_ymd <- format(as.Date(as.character(account$date), "%y%m%d"), "19%y/%m/%d") 
 
-# account <- account %>%
-#   select(-date)
+account <- account %>%
+  select(-date)
 
 #factorize variables
 account <- account %>% 
@@ -98,8 +98,12 @@ account <- account %>%
           issuance_weekly = as_factor(issuance_weekly), 
           issuance_transaction = as_factor(issuance_transaction),
           date_ymd = as.Date(date_ymd)
-          )
-
+          ) %>%
+  mutate(frequency = case_when(
+    frequency == 'POPLATEK MESICNE' ~ 'monthly issuance',
+    frequency == 'POPLATEK TYDNE' ~ 'weekly issuance',
+    frequency == 'POPLATEK PO OBRATU' ~ 'issuance after transaction'
+  ))
 #str(account)
 ```
 
@@ -346,6 +350,16 @@ order <- order %>%
          loan_payment = as_factor(loan_payment)
          )
 
+
+order <- order %>%
+  mutate(k_symbol = case_when(
+    k_symbol == 'POJISTNE' ~ 'issurance payment',
+    k_symbol == 'SIPO' ~ 'household',
+    k_symbol == 'LEASING' ~ 'leasing',
+    k_symbol == 'UVER' ~ 'loan payment'
+  )
+    
+  )
 #str(order)
 ```
 
@@ -465,6 +479,27 @@ trans <- trans %>%
          date_dmy = as.Date(date_dmy)
          )
 
+trans <- trans %>%
+  mutate(type = case_when(
+    type == 'PRIJEM' ~ 'credit',
+    type == 'VYDAJ' ~ 'withdrawal'
+  )) %>%
+  mutate(operation = case_when(
+    operation == 'VYBER KARTOU' ~ 'credit card withdrawal',
+    operation == 'VKLAD' ~ 'credit in cash',
+    operation == 'PREVOD Z UCTU' ~ 'collection from other bank',
+    operation == 'VYBER' ~ 'withdrawal in cash',
+    operation == 'PREVOD NA UCET' ~ 'remittance to other bank'
+  )) %>%
+  mutate(k_symbol = case_when(
+    k_symbol == 'POJISTNE' ~ 'insurrance payment',
+    k_symbol == 'SLUZBY' ~ 'payment for statement',
+    k_symbol == 'UROK' ~ 'interest credited',
+    k_symbol == 'SIPO' ~ 'hosehold',
+    k_symbol == 'DUCHOD' ~ 'old-age pension',
+    k_symbol == 'UVER' ~ 'loan payment'
+  ))
+
 #str(trans)
 
 ```
@@ -546,7 +581,7 @@ client_gender_j
 
 ```{r}
 client_owner_j <-ggplot(
-  client_disp, aes(x = type.x,fill = gender ))+
+  client_disp, aes(x = type_client,fill = gender ))+
   geom_bar(position ='dodge')+
   ggtitle('\nOwner/Disponent spread on gender\n')+
   theme(
@@ -561,10 +596,10 @@ client_owner_j
 
 print(count(client_disp))
 
-owner_total <- sum(client_disp$type.x == 'OWNER')
+owner_total <- sum(client_disp$type_client== 'OWNER')
 cat('Total OWNER:', owner_total) 
 
-dispo_total <- sum(client_disp$type.x == 'DISPONENT')
+dispo_total <- sum(client_disp$ype_client== 'DISPONENT')
 cat('Total DISPONENT: ', dispo_total)
 
 female_client <- sum(client_disp$gender == 'f')
@@ -636,7 +671,7 @@ card_type_j <- ggplot(
 card_type_j
 
 card_type_jx <- ggplot(
-  client_disp, aes(x = type.x, fill = gender))+
+  client_disp, aes(x = type_client, fill = gender))+
   geom_bar(position = 'dodge')+
   ggtitle('\nSpread of card types\n')+
   theme(
@@ -661,16 +696,33 @@ card_type_jx
 
 ```{r}
 card_type_g_j <- ggplot(
-  client_disp, aes(x = type.y, fill = gender))+
-  geom_bar()+
+  client_disp, aes(x = type_card, fill = gender))+
+  geom_bar(position = 'dodge')+
   ggtitle('\nSpread of card types\n')+
   theme(
     plot.title = element_text(hjust = 0.5)
     )
   
 card_type_g_j
+```
+```{r}
+age_card <- client_disp %>%
+  group_by( type_card, age ) %>%
+  summarise(
+    count = n()
+  )
+age_card
 
-
+card_type_age <- ggplot(
+  age_card, aes(x = age, y = count, colour = type_card))+
+  geom_line(position = 'dodge')+
+  ggtitle('\nSpread of card types\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+  
+card_type_age
+```
 
 
 ```
