@@ -706,6 +706,15 @@ card_type_g_j <- ggplot(
 card_type_g_j
 ```
 ```{r}
+card_type_age_g <- ggplot(
+  client_disp, aes(x = age, colour = type_card))+
+  geom_density(position = 'dodge')+
+  ggtitle('\nSpread of card types\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+card_type_age_g
+
 age_card <- client_disp %>%
   group_by( type_card, age ) %>%
   summarise(
@@ -724,6 +733,16 @@ card_type_age <- ggplot(
 card_type_age
 ```
 
+
+```{r}
+# filter by card, make dataframe for each card type
+
+#wenn junior_card is true pipe into new data frame
+
+
+client_junior <- filter(client_disp , junior_card == 1)
+client_classic <- filter(client_disp , classic_card == 1)
+client_gold <- filter(client_disp , gold_card == 1)
 
 ```
 
