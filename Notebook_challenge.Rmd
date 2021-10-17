@@ -16,6 +16,9 @@ library(rpart.plot)
 library(gridExtra)
 library(usethis)
 library(ggplot2)
+```
+
+```{r}
 
 account <- read.csv('./account.csv', sep = ";")
 card <- read.csv('./card.csv', sep = ";")
@@ -470,22 +473,46 @@ Bring together client and disp
 ```{r}
 client_disp <- full_join(
     disp,client, by = 'client_id'
-)
+) 
 
 client_disp <- full_join(
   client_disp, card, by = 'disp_id'
 )
 
+client_disp <- client_disp %>%
+  rename(
+    type_client = type.x,
+    type_card = type.y,
+    card_issued = issued_date
+  ) %>%
+  select(
+    - birth_number,
+    - month,
+    - issued
+  )
+
+client_disp <- client_disp[,c(1,2,3,11,7,8,10,4,12,9,5,6,13,14,15,16)]
+
+
+#gender count aller clients
 gender_group <- client_disp %>%
  count(gender)
 gender_group
 
+#type count aller clients
 gen_client_group <- client_disp %>%
   count(type.x)
 gen_client_group
 
+#gender count nach type
+gen_client_test<- client_disp %>%
+  group_by(gender) %>%
+  count(type.x)
+gen_client_test
 
+#herausfinden ob 1 client mehrere accounts
 
+# gender spread czeck republik 1998 female 51.37% https://data.worldbank.org/indicator/SP.POP.TOTL.FE.ZS?end=1998&locations=CZ&start=1998
 ```
 
 
@@ -519,12 +546,13 @@ client_gender_j
 
 ```{r}
 client_owner_j <-ggplot(
-  client_disp, aes(x = gender,fill = type.x))+
-  geom_bar()+
+  client_disp, aes(x = type.x,fill = gender ))+
+  geom_bar(position ='dodge')+
   ggtitle('\nOwner/Disponent spread on gender\n')+
   theme(
     plot.title = element_text(hjust = 0.5)
     )+
+  geom_text(aes(label = ..count..), stat = "count", position =  position_dodge(width = 0.9), vjust = 2)+
   labs( y= '\nNumber of Clients\n', x = '\nGender\n')
 client_owner_j
 
@@ -549,8 +577,6 @@ print('There is an equal amount of male and female clients. That is very surpris
 # da stimmt etwas nicht. Bei clients sagts es sind 5369 observationen, wenn mann nach gender odrnet sind immer zu viele das erste geschlecht.????
 
 
-
-
       
 
 ```
@@ -569,9 +595,30 @@ client_age_j <- ggplot(
   theme(
     plot.title = element_text(hjust = 0.5)
     )+
-  labs( y= '\ndensity\n', x = '\nAge\n')
+  labs( y = '\ndensity\n', x = '\nAge\n')
   
 client_age_j
+
+age_count <- client %>%
+  group_by(gender, age) %>%
+  summarise(
+    count = n()
+  )
+age_count
+
+
+client_age_jl <- ggplot(
+  age_count, aes(x = age, colour = gender, y = count))+
+  #geom_bar(alpha = 0.5)+
+  # geom_point()+
+  geom_line()+
+  ggtitle('\nClientspread on age, separated by gender\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+client_age_jl
+
+
 ```
 
 
@@ -588,13 +635,33 @@ card_type_j <- ggplot(
   
 card_type_j
 
+card_type_jx <- ggplot(
+  client_disp, aes(x = type.x, fill = gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\nSpread of card types\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+  
+card_type_jx
+
+# client_owner_j <-ggplot(
+#   client_disp, aes(x = type.x,fill = gender ))+
+#   geom_bar(position ='dodge')+
+#   ggtitle('\nOwner/Disponent spread on gender\n')+
+#   theme(
+#     plot.title = element_text(hjust = 0.5)
+#     )+
+#   geom_text(aes(label = ..count..), stat = "count", position =  position_dodge(width = 0.9), vjust = 2)+
+#   labs( y= '\nNumber of Clients\n', x = '\nGender\n')
+# client_owner_j
 
 ```
 
 
 ```{r}
 card_type_g_j <- ggplot(
-  card, aes(x = type, fill = gender))+
+  client_disp, aes(x = type.y, fill = gender))+
   geom_bar()+
   ggtitle('\nSpread of card types\n')+
   theme(
