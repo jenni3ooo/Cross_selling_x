@@ -731,6 +731,46 @@ card_type_age <- ggplot(
     )
   
 card_type_age
+
+
+age_card_m <- filter(client_disp, gender == 'm')
+age_card_m
+
+age_card_f <- filter(client_disp, gender == 'f')
+age_card_f
+
+age_card_m <- age_card_m %>%
+  group_by(age, type_card) %>%
+  summarise(
+    count = n()
+  ) 
+
+age_card_f <- age_card_f %>%
+  group_by(age, type_card) %>%
+  summarise(
+    count = n()
+  ) 
+
+
+card_type_age_m <- ggplot(
+  age_card_m, aes(x = age, y = count, colour = type_card))+
+  geom_line(position = 'dodge')+
+  ggtitle('\nSpread of card types of male clients\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+  
+card_type_age_m
+
+card_type_age_f <- ggplot(
+  age_card_f, aes(x = age, y = count, colour = type_card))+
+  geom_line(position = 'dodge')+
+  ggtitle('\nSpread of card types of female clients\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+  
+card_type_age_f
 ```
 
 
@@ -738,11 +778,11 @@ card_type_age
 # filter by card, make dataframe for each card type
 
 #wenn junior_card is true pipe into new data frame
-
-
 client_junior <- filter(client_disp , junior_card == 1)
 client_classic <- filter(client_disp , classic_card == 1)
 client_gold <- filter(client_disp , gold_card == 1)
+
+
 
 ```
 
