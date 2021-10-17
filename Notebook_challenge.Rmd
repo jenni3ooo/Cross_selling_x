@@ -782,6 +782,12 @@ client_junior <- filter(client_disp , junior_card == 1)
 client_classic <- filter(client_disp , classic_card == 1)
 client_gold <- filter(client_disp , gold_card == 1)
 
+client_all_cards <- client_disp %>%
+  filter(!is.na(type_card))
+
+client_na <- client_disp %>%
+  filter(is.na(type_card))
+
 
 
 ```
