@@ -536,13 +536,13 @@ gender_group
 
 #type count aller clients
 gen_client_group <- client_disp %>%
-  count(type.x)
+  count(type_client)
 gen_client_group
 
 #gender count nach type
 gen_client_test<- client_disp %>%
   group_by(gender) %>%
-  count(type.x)
+  count(type_client)
 gen_client_test
 
 #herausfinden ob 1 client mehrere accounts
@@ -664,6 +664,7 @@ card_type_j <- ggplot(
   card, aes(x = type, fill = type))+
   geom_bar()+
   ggtitle('\nSpread of card types\n')+
+  geom_text(aes(label = ..count..), stat = "count", position =  position_dodge(width = 0.9), vjust = 2)+
   theme(
     plot.title = element_text(hjust = 0.5)
     )
@@ -674,6 +675,7 @@ card_type_jx <- ggplot(
   client_disp, aes(x = type_client, fill = gender))+
   geom_bar(position = 'dodge')+
   ggtitle('\nSpread of card types\n')+
+  geom_text(aes(label = ..count..), stat = "count", position =  position_dodge(width = 0.9), vjust = 2)+
   theme(
     plot.title = element_text(hjust = 0.5)
     )
@@ -699,6 +701,7 @@ card_type_g_j <- ggplot(
   client_disp, aes(x = type_card, fill = gender))+
   geom_bar(position = 'dodge')+
   ggtitle('\nSpread of card types\n')+
+  geom_text(aes(label = ..count..), stat = "count", position =  position_dodge(width = 0.9), vjust = 2)+
   theme(
     plot.title = element_text(hjust = 0.5)
     )
@@ -788,10 +791,58 @@ client_all_cards <- client_disp %>%
 client_na <- client_disp %>%
   filter(is.na(type_card))
 
+client_na
 
-
+client_na_junior <- filter(client_na, age <= 23)
+client_na_classic_gold <- filter(client_na, age > 23)
 ```
 
+```{r}
+# client_junior$age_card_issued2 <- client_junior$card_issued - client_junior$birthday 
+client_junior$age_card_issued <- floor(age_calc(as.Date(client_junior$birthday),client_junior$card_issued, units = "years"))
+
+junior_issued_age_viz <- ggplot( client_junior, aes( x = age_card_issued, fill = gender))+
+  geom_bar( position = 'dodge'
+  )+
+  # geom_density()+
+  ggtitle('\nJunior cards issued on age of owner\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+junior_issued_age_viz
+
+client_na_junior_age_viz <- ggplot(client_na_junior, aes(x=age, fill=gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\npotential junior card clients age spread\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  )
+client_na_junior_age_viz
+
+```
+```{r}
+client_classic$age_card_issued <- floor(age_calc(as.Date(client_classic$birthday),client_classic$card_issued, units = 'years'))
+client_gold$age_card_issued <- floor(age_calc(as.Date(client_gold$birthday),client_gold$card_issued, units = 'years'))
+
+classic_issued_age_viz <- ggplot(client_classic, aes( x = age, fill = gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\nClassic cards issued on age of owner\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+classic_issued_age_viz
+
+#nehmen wir alle ab 20 zu der gruppe potential classic????????
+
+gold_issued_age_viz <- ggplot(client_gold, aes( x = age, fill = gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\nGold cards issued on age of owner\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+gold_issued_age_viz
+
+```
 
 
 
