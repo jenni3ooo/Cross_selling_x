@@ -16,6 +16,9 @@ library(rpart.plot)
 library(gridExtra)
 library(usethis)
 library(ggplot2)
+```
+
+```{r}
 
 account <- read.csv('./account.csv', sep = ";")
 card <- read.csv('./card.csv', sep = ";")
@@ -83,10 +86,10 @@ account <- account %>%
 
 
 #reformat date
-account$date_ymd <- format(as.Date(as.character(account$date), "%y%m%d"), "%y/%m/%d") 
+account$date_ymd <- format(as.Date(as.character(account$date), "%y%m%d"), "19%y/%m/%d") 
 
-# account <- account %>%
-#   select(-date)
+account <- account %>%
+  select(-date)
 
 #factorize variables
 account <- account %>% 
@@ -95,8 +98,12 @@ account <- account %>%
           issuance_weekly = as_factor(issuance_weekly), 
           issuance_transaction = as_factor(issuance_transaction),
           date_ymd = as.Date(date_ymd)
-          )
-
+          ) %>%
+  mutate(frequency = case_when(
+    frequency == 'POPLATEK MESICNE' ~ 'monthly issuance',
+    frequency == 'POPLATEK TYDNE' ~ 'weekly issuance',
+    frequency == 'POPLATEK PO OBRATU' ~ 'issuance after transaction'
+  ))
 #str(account)
 ```
 
@@ -123,7 +130,7 @@ card <- card %>%
   )
 
 #reformat date
-card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "%y/%m/%d")
+card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "19%y/%m/%d")
 #card <- card %>%
   #select(-issued)
 
@@ -140,6 +147,7 @@ card <- card %>%
          )
 
 #str(card)
+
   
 ```
 
@@ -147,6 +155,7 @@ clean/organize client (Dani fragen)
 ```{r}
 
 #reformat birth_number
+
 client <- client %>%
   mutate(month = substr(birth_number, 3, 4)) %>%
   mutate(month = strtoi(month))
@@ -166,7 +175,9 @@ client <- client %>%
     TRUE ~ birth_number)
   )
 
-client$birthday <- format(as.Date(as.character(client$birth_number), "%y%m%d"), "%y/%m/%d")
+
+
+client$birthday <- format(as.Date(as.character(client$birth_number), "%y%m%d"), "19%y/%m/%d")
 # client <- client %>%
 #   select(-birth_number)
 
@@ -177,8 +188,30 @@ client <- client %>%
          birthday = as.Date(birthday)
          )
 
+library(eeptools)
+x <- as.Date(c("1998-01-01"))
+
+
+client$age <- floor(age_calc(as.Date(client$birthday),x, units = "years"))
+
+# client <- client %>%
+#   mutate(age = 
+#     
+#   )
+
 #str(client)
   
+```
+
+birthday proper shape
+```{r}
+client <- client %>%
+  mutate(
+    birth_number = birth_number + 19000000
+  )
+
+# client <- client %>%
+#   birth_number += '19' 
 ```
 
 clean/organize disp
@@ -234,7 +267,7 @@ clean/organize loan
 ```{r}
 
 #reformat date
-loan$date_issued <- format(as.Date(as.character(loan$date), "%y%m%d"), "%y/%m/%d")
+loan$date_issued <- format(as.Date(as.character(loan$date), "%y%m%d"), "19%y/%m/%d")
 loan <- loan %>%
   select(-date)
 
@@ -317,6 +350,16 @@ order <- order %>%
          loan_payment = as_factor(loan_payment)
          )
 
+
+order <- order %>%
+  mutate(k_symbol = case_when(
+    k_symbol == 'POJISTNE' ~ 'issurance payment',
+    k_symbol == 'SIPO' ~ 'household',
+    k_symbol == 'LEASING' ~ 'leasing',
+    k_symbol == 'UVER' ~ 'loan payment'
+  )
+    
+  )
 #str(order)
 ```
 
@@ -324,9 +367,7 @@ clean/organize trans
 ```{r}
 
 #reformat date
-trans$date_dmy <- format(as.Date(as.character(trans$date), "%y%m%d"), "%y/%m/%d")
-trans <- trans %>%
-  select(-date)
+trans$date_dmy <- format(as.Date(as.character(trans$date), "%y%m%d"), "19%y/%m/%d")
 
 #reformat type into 2 new columns
 trans <- trans %>%
@@ -438,16 +479,454 @@ trans <- trans %>%
          date_dmy = as.Date(date_dmy)
          )
 
+trans <- trans %>%
+  mutate(type = case_when(
+    type == 'PRIJEM' ~ 'credit',
+    type == 'VYDAJ' ~ 'withdrawal'
+  )) %>%
+  mutate(operation = case_when(
+    operation == 'VYBER KARTOU' ~ 'credit card withdrawal',
+    operation == 'VKLAD' ~ 'credit in cash',
+    operation == 'PREVOD Z UCTU' ~ 'collection from other bank',
+    operation == 'VYBER' ~ 'withdrawal in cash',
+    operation == 'PREVOD NA UCET' ~ 'remittance to other bank'
+  )) %>%
+  mutate(k_symbol = case_when(
+    k_symbol == 'POJISTNE' ~ 'insurrance payment',
+    k_symbol == 'SLUZBY' ~ 'payment for statement',
+    k_symbol == 'UROK' ~ 'interest credited',
+    k_symbol == 'SIPO' ~ 'hosehold',
+    k_symbol == 'DUCHOD' ~ 'old-age pension',
+    k_symbol == 'UVER' ~ 'loan payment'
+  ))
+
 #str(trans)
 
 ```
 
+Bring together client and disp
+```{r}
+client_disp <- full_join(
+    disp,client, by = 'client_id'
+) 
 
-Fragestellung Recherche Jenni
+client_disp <- full_join(
+  client_disp, card, by = 'disp_id'
+)
+
+client_disp <- client_disp %>%
+  rename(
+    type_client = type.x,
+    type_card = type.y,
+    card_issued = issued_date
+  ) %>%
+  select(
+    - birth_number,
+    - month,
+    - issued
+  )
+
+client_disp <- client_disp[,c(1,2,3,11,7,8,10,4,12,9,5,6,13,14,15,16)]
+
+
+#gender count aller clients
+gender_group <- client_disp %>%
+ count(gender)
+gender_group
+
+#type count aller clients
+gen_client_group <- client_disp %>%
+  count(type_client)
+gen_client_group
+
+#gender count nach type
+gen_client_test<- client_disp %>%
+  group_by(gender) %>%
+  count(type_client)
+gen_client_test
+
+#herausfinden ob 1 client mehrere accounts
+
+# gender spread czeck republik 1998 female 51.37% https://data.worldbank.org/indicator/SP.POP.TOTL.FE.ZS?end=1998&locations=CZ&start=1998
+```
+
+
+Districts
 ```{r}
 
 
 
+```
+
+Fragestellung Recherche Jenni
+
+Quick overview research to get to know the outlines of the dataset and decide where to go deeper.
+
+
+First i wanted to see the genderdistribution of the clients.
+
+As we can see in the Plot below, there are slightly less women than man, but over all the gender is pretty balanced out.
+```{r}
+client_gender_j <-ggplot(
+  client, aes(x = gender, fill = gender))+
+  geom_bar()+
+  ggtitle('\nClients spread on gender\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )+
+  labs( y= '\nNumber of Clients\n', x = '\nGender\n')
+client_gender_j
 
 ```
+
+```{r}
+client_owner_j <-ggplot(
+  client_disp, aes(x = type_client,fill = gender ))+
+  geom_bar(position ='dodge')+
+  ggtitle('\nOwner/Disponent spread on gender\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )+
+  geom_text(aes(label = ..count..), stat = "count", position =  position_dodge(width = 0.9), vjust = 2)+
+  labs( y= '\nNumber of Clients\n', x = '\nGender\n')
+client_owner_j
+
+#weiter untersuchen, wer macht die Überweisungen und altersgruppen
+#check mit count
+
+print(count(client_disp))
+
+owner_total <- sum(client_disp$type_client== 'OWNER')
+cat('Total OWNER:', owner_total) 
+
+dispo_total <- sum(client_disp$ype_client== 'DISPONENT')
+cat('Total DISPONENT: ', dispo_total)
+
+female_client <- sum(client_disp$gender == 'f')
+cat('Total female clients: ',female_client)
+
+male_client <- sum(client_disp$gender == 'm')
+cat('Total male clients: ',female_client)
+
+print('There is an equal amount of male and female clients. That is very surprising. We will have a deeper look at this.')
+# da stimmt etwas nicht. Bei clients sagts es sind 5369 observationen, wenn mann nach gender odrnet sind immer zu viele das erste geschlecht.????
+
+
+      
+
+```
+
+
+The general information of the Age of the clients is a good base information as well.
+
+We gan see in the plot below most clients are between 20 and 55 years old. 
+
+```{r}
+client_age_j <- ggplot(
+  client, aes(x = age, colour = gender))+
+  #geom_bar(alpha = 0.5)+
+  geom_density()+
+  ggtitle('\nClientspread on age, separated by gender\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )+
+  labs( y = '\ndensity\n', x = '\nAge\n')
+  
+client_age_j
+
+age_count <- client %>%
+  group_by(gender, age) %>%
+  summarise(
+    count = n()
+  )
+age_count
+
+
+client_age_jl <- ggplot(
+  age_count, aes(x = age, colour = gender, y = count))+
+  #geom_bar(alpha = 0.5)+
+  # geom_point()+
+  geom_line()+
+  ggtitle('\nClientspread on age, separated by gender\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+client_age_jl
+
+
+```
+
+
+
+
+```{r}
+card_type_j <- ggplot(
+  card, aes(x = type, fill = type))+
+  geom_bar()+
+  ggtitle('\nSpread of card types\n')+
+  geom_text(aes(label = ..count..), stat = "count", position =  position_dodge(width = 0.9), vjust = 2)+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+  
+card_type_j
+
+card_type_jx <- ggplot(
+  client_disp, aes(x = type_client, fill = gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\nSpread of card types\n')+
+  geom_text(aes(label = ..count..), stat = "count", position =  position_dodge(width = 0.9), vjust = 2)+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+  
+card_type_jx
+
+# client_owner_j <-ggplot(
+#   client_disp, aes(x = type.x,fill = gender ))+
+#   geom_bar(position ='dodge')+
+#   ggtitle('\nOwner/Disponent spread on gender\n')+
+#   theme(
+#     plot.title = element_text(hjust = 0.5)
+#     )+
+#   geom_text(aes(label = ..count..), stat = "count", position =  position_dodge(width = 0.9), vjust = 2)+
+#   labs( y= '\nNumber of Clients\n', x = '\nGender\n')
+# client_owner_j
+
+```
+
+
+```{r}
+card_type_g_j <- ggplot(
+  client_disp, aes(x = type_card, fill = gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\nSpread of card types\n')+
+  geom_text(aes(label = ..count..), stat = "count", position =  position_dodge(width = 0.9), vjust = 2)+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+  
+card_type_g_j
+```
+```{r}
+card_type_age_g <- ggplot(
+  client_disp, aes(x = age, colour = type_card))+
+  geom_density(position = 'dodge')+
+  ggtitle('\nSpread of card types\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+card_type_age_g
+
+age_card <- client_disp %>%
+  group_by( type_card, age ) %>%
+  summarise(
+    count = n()
+  )
+age_card
+
+card_type_age <- ggplot(
+  age_card, aes(x = age, y = count, colour = type_card))+
+  geom_line(position = 'dodge')+
+  ggtitle('\nSpread of card types\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+  
+card_type_age
+
+
+age_card_m <- filter(client_disp, gender == 'm')
+age_card_m
+
+age_card_f <- filter(client_disp, gender == 'f')
+age_card_f
+
+age_card_m <- age_card_m %>%
+  group_by(age, type_card) %>%
+  summarise(
+    count = n()
+  ) 
+
+age_card_f <- age_card_f %>%
+  group_by(age, type_card) %>%
+  summarise(
+    count = n()
+  ) 
+
+
+card_type_age_m <- ggplot(
+  age_card_m, aes(x = age, y = count, colour = type_card))+
+  geom_line(position = 'dodge')+
+  ggtitle('\nSpread of card types of male clients\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+  
+card_type_age_m
+
+card_type_age_f <- ggplot(
+  age_card_f, aes(x = age, y = count, colour = type_card))+
+  geom_line(position = 'dodge')+
+  ggtitle('\nSpread of card types of female clients\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+  
+card_type_age_f
+```
+
+
+```{r}
+# filter by card, make dataframe for each card type
+
+#wenn junior_card is true pipe into new data frame
+client_junior <- filter(client_disp , junior_card == 1)
+client_classic <- filter(client_disp , classic_card == 1)
+client_gold <- filter(client_disp , gold_card == 1)
+
+client_all_cards <- client_disp %>%
+  filter(!is.na(type_card))
+
+client_na <- client_disp %>%
+  filter(is.na(type_card))
+
+client_na
+
+client_na_junior <- filter(client_na, age <= 23)
+client_na_classic_gold <- filter(client_na, age > 23)
+```
+
+```{r}
+# client_junior$age_card_issued2 <- client_junior$card_issued - client_junior$birthday 
+client_junior$age_card_issued <- floor(age_calc(as.Date(client_junior$birthday),client_junior$card_issued, units = "years"))
+
+junior_issued_age_viz <- ggplot( client_junior, aes( x = age_card_issued, fill = gender))+
+  geom_bar( position = 'dodge'
+  )+
+  # geom_density()+
+  ggtitle('\nJunior cards issued on age of owner\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+junior_issued_age_viz
+
+client_na_junior_age_viz <- ggplot(client_na_junior, aes(x=age, fill=gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\npotential junior card clients age spread\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  )
+client_na_junior_age_viz
+
+```
+```{r}
+client_classic$age_card_issued <- floor(age_calc(as.Date(client_classic$birthday),client_classic$card_issued, units = 'years'))
+client_gold$age_card_issued <- floor(age_calc(as.Date(client_gold$birthday),client_gold$card_issued, units = 'years'))
+
+classic_issued_age_viz <- ggplot(client_classic, aes( x = age, fill = gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\nClassic cards issued on age of owner\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+classic_issued_age_viz
+
+#nehmen wir alle ab 20 zu der gruppe potential classic????????
+
+gold_issued_age_viz <- ggplot(client_gold, aes( x = age, fill = gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\nGold cards issued on age of owner\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+    )
+gold_issued_age_viz
+
+```
+
+```{r}
+#join card information to traansactions via account id
+
+cardowner_transactions <- inner_join(client_all_cards, trans, by = 'account_id') %>%
+  mutate(trans_credit =
+    case_when(
+      type == 'credit' ~ 1,
+      type != 'credit' ~ 0
+    )
+  ) %>%
+  mutate(trans_withdrawal =
+           case_when(
+             type == 'withdrawal' ~ 1,
+             type != 'withdrawal' ~ 0
+           )
+    
+  )
+
+junior_card_transactions <- filter(cardowner_transactions, type_card == 'junior')
+classic_card_transactions <- filter(cardowner_transactions, type_card == 'classic')
+gold_card_transactions <- filter(cardowner_transactions, type_card == 'gold')
+```
+
+
+```{r}
+junior_card_transactions_2 <- junior_card_transactions %>%
+  group_by(account_id, type) %>%
+  summarise(
+    count = n()
+  ) 
+junior_card_transactions_2
+
+
+
+```
+
+
+
+
+
+
+
+
+
+```{r}
+
+#zuerst durchschnitt pro gender berechnen
+
+
+
+
+
+
+
+
+
+
+
+junior_trans_viz <- ggplot(junior_card_transactions, aes( x = type, fill = gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\nIncome compared to withdrawals Junior Card\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  )
+junior_trans_viz
+
+classic_trans_viz <- ggplot(classic_card_transactions, aes( x = type, fill = gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\nIncome compared to withdrawals classic card\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  )
+classic_trans_viz
+
+gold_trans_viz <- ggplot(gold_card_transactions, aes( x = type, fill = gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\nIncome compared to withdrawals gold card\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  )
+gold_trans_viz
+```
+
+
+
 
