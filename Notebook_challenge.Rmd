@@ -66,23 +66,23 @@ clean/organize account
 ```{r}
 
 #reformat frequency_issuance into 3 new columns
-account <- account %>%
-  mutate(issuance_monthly = case_when(
-    endsWith(frequency, 'MESICNE') ~ 1,
-    TRUE ~ 0)
-  )
-
-account <- account %>%
-  mutate(issuance_weekly = case_when(
-    endsWith(frequency, 'TYDNE') ~ 1,
-    TRUE ~ 0)
-  )
-
-account <- account %>%
-  mutate(issuance_transaction = case_when(
-    endsWith(frequency, 'PO OBRATU') ~ 1,
-    TRUE ~ 0)
-  )
+# account <- account %>%
+#   mutate(issuance_monthly = case_when(
+#     endsWith(frequency, 'MESICNE') ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# account <- account %>%
+#   mutate(issuance_weekly = case_when(
+#     endsWith(frequency, 'TYDNE') ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# account <- account %>%
+#   mutate(issuance_transaction = case_when(
+#     endsWith(frequency, 'PO OBRATU') ~ 1,
+#     TRUE ~ 0)
+#   )
 
 
 #reformat date
@@ -94,9 +94,9 @@ account <- account %>%
 #factorize variables
 account <- account %>% 
   mutate (frequency = as_factor(frequency), 
-          issuance_monthly = as_factor(issuance_monthly), 
-          issuance_weekly = as_factor(issuance_weekly), 
-          issuance_transaction = as_factor(issuance_transaction),
+          # issuance_monthly = as_factor(issuance_monthly), 
+          # issuance_weekly = as_factor(issuance_weekly), 
+          # issuance_transaction = as_factor(issuance_transaction),
           date_ymd = as.Date(date_ymd)
           ) %>%
   mutate(frequency = case_when(
@@ -111,23 +111,23 @@ clean/organize card
 ```{r}
 
 #reformat type_of_card into 3 new columns
-card <- card %>%
-  mutate(junior_card = case_when(
-    type == 'junior' ~ 1,
-    TRUE ~ 0)
-  )
-
-card <- card %>%
-  mutate(classic_card = case_when(
-    type == 'classic' ~ 1,
-    TRUE ~ 0)
-  )
-
-card <- card %>%
-  mutate(gold_card = case_when(
-    type == 'gold' ~ 1,
-    TRUE ~ 0)
-  )
+# card <- card %>%
+#   mutate(junior_card = case_when(
+#     type == 'junior' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# card <- card %>%
+#   mutate(classic_card = case_when(
+#     type == 'classic' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# card <- card %>%
+#   mutate(gold_card = case_when(
+#     type == 'gold' ~ 1,
+#     TRUE ~ 0)
+#   )
 
 #reformat date
 card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "19%y/%m/%d")
@@ -140,9 +140,9 @@ card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "19%y/%
 #factorize variables
 card <- card %>%
   mutate(type = as_factor(type), 
-         junior_card = as_factor(junior_card), 
-         classic_card = as_factor(classic_card),
-         gold_card = as_factor(gold_card),
+         # junior_card = as_factor(junior_card), 
+         # classic_card = as_factor(classic_card),
+         # gold_card = as_factor(gold_card),
          issued_date = as.Date(issued_date)
          )
 
@@ -218,22 +218,22 @@ clean/organize disp
 ```{r}
 
 #reformat type into 2 new columns
-disp <- disp %>%
-  mutate(owner = case_when(
-    type == 'OWNER' ~ 1,
-    TRUE ~ 0)
-  )
-disp <- disp %>%
-  mutate(disponent = case_when(
-    type == 'DISPONENT' ~ 1,
-    TRUE ~ 0)
-  )
+# disp <- disp %>%
+#   mutate(owner = case_when(
+#     type == 'OWNER' ~ 1,
+#     TRUE ~ 0)
+#   )
+# disp <- disp %>%
+#   mutate(disponent = case_when(
+#     type == 'DISPONENT' ~ 1,
+#     TRUE ~ 0)
+#   )
 
 #factorize variables
 disp <- disp %>%
   mutate(type = as_factor(type), 
-         owner = as_factor(owner), 
-         disponent = as_factor(disponent)
+         # owner = as_factor(owner), 
+         # disponent = as_factor(disponent)
          )
 
 #str(disp)
@@ -272,38 +272,38 @@ loan <- loan %>%
   select(-date)
 
 #reformat status into 4 new columns
-loan <- loan %>%
-  mutate(in_debt = case_when(
-    status == 'D' ~ 1,
-    TRUE ~ 0)
-  )
-
-loan <- loan %>%
-  mutate(ok_so_far= case_when(
-    status == 'C' ~ 1,
-     TRUE ~ 0)
-  )
-
-loan <- loan %>%
-  mutate(loan_not_payed= case_when(
-    status == 'B'~ 1,
-    TRUE ~ 0)
-  )
-
-loan <- loan %>%
-  mutate(payed_off= case_when(
-    status == 'A'~ 1,
-    TRUE ~ 0)
-  )
+# loan <- loan %>%
+#   mutate(in_debt = case_when(
+#     status == 'D' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# loan <- loan %>%
+#   mutate(ok_so_far= case_when(
+#     status == 'C' ~ 1,
+#      TRUE ~ 0)
+#   )
+# 
+# loan <- loan %>%
+#   mutate(loan_not_payed= case_when(
+#     status == 'B'~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# loan <- loan %>%
+#   mutate(payed_off= case_when(
+#     status == 'A'~ 1,
+#     TRUE ~ 0)
+#   )
 
 #factorize variables
 loan <- loan %>%
   mutate(duration = as_factor(duration), 
          status = as_factor(status),
-         in_debt = as_factor(in_debt), 
-         ok_so_far = as_factor(ok_so_far), 
-         loan_not_payed = as_factor(loan_not_payed), 
-         payed_off = as_factor(payed_off),
+         # in_debt = as_factor(in_debt), 
+         # ok_so_far = as_factor(ok_so_far), 
+         # loan_not_payed = as_factor(loan_not_payed), 
+         # payed_off = as_factor(payed_off),
          date_issued = as.Date(date_issued)
          )
 
@@ -316,38 +316,38 @@ clean/organize order
 ```{r}
 
 #reformat k_symbol into 4 new columns
-order <- order %>%
-  mutate(insurrance_payment = case_when(
-    k_symbol == 'POJISTNE' ~ 1,
-    TRUE ~ 0)
-  )
-
-order <- order %>%
-  mutate(household = case_when(
-    k_symbol == 'SIPO' ~ 1,
-    TRUE ~ 0)
-  )
-
-order <- order %>%
-  mutate(for_leasing = case_when(
-    k_symbol == 'LEASING' ~ 1,
-    TRUE ~ 0)
-  )
-
-order <- order %>%
-  mutate(loan_payment = case_when(
-    k_symbol == 'UVER' ~ 1,
-    TRUE ~ 0)
-  )
+# order <- order %>%
+#   mutate(insurrance_payment = case_when(
+#     k_symbol == 'POJISTNE' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# order <- order %>%
+#   mutate(household = case_when(
+#     k_symbol == 'SIPO' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# order <- order %>%
+#   mutate(for_leasing = case_when(
+#     k_symbol == 'LEASING' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# order <- order %>%
+#   mutate(loan_payment = case_when(
+#     k_symbol == 'UVER' ~ 1,
+#     TRUE ~ 0)
+#   )
 
 #factorize variables
 order <- order %>%
   mutate(bank_to = as_factor(bank_to), 
          k_symbol = as_factor(k_symbol), 
-         insurrance_payment = as_factor(insurrance_payment), 
-         household = as_factor(household), 
-         for_leasing = as_factor(for_leasing), 
-         loan_payment = as_factor(loan_payment)
+         # insurrance_payment = as_factor(insurrance_payment), 
+         # household = as_factor(household), 
+         # for_leasing = as_factor(for_leasing), 
+         # loan_payment = as_factor(loan_payment)
          )
 
 
@@ -370,119 +370,120 @@ clean/organize trans
 trans$date_dmy <- format(as.Date(as.character(trans$date), "%y%m%d"), "19%y/%m/%d")
 
 #reformat type into 2 new columns
-trans <- trans %>%
-  mutate(credit = case_when(
-    type == 'PRIJEM' ~ 1,
-    TRUE ~ 0)
-  )
-
-trans <- trans %>%
-  mutate(withdrawal = case_when(
-    type == 'VYDAJ' ~ 1,
-    TRUE ~ 0)
-  )
+# trans <- trans %>%
+#   mutate(credit = case_when(
+#     type == 'PRIJEM' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# trans <- trans %>%
+#   mutate(withdrawal = case_when(
+#     type == 'VYDAJ' ~ 1,
+#     TRUE ~ 0)
+#   )
 
 #reformat operation into 5 new columns
-trans <- trans %>%
-  mutate(creditcard_wd = case_when(
-    operation == 'VYBER KARTOU' ~ 1,
-    TRUE ~ 0)
-  )
-  
-trans <- trans %>%
-  mutate(credit_cash = case_when(
-    operation == 'VKLAD' ~ 1,
-    TRUE ~ 0)
-  )
+# trans <- trans %>%
+#   mutate(creditcard_wd = case_when(
+#     operation == 'VYBER KARTOU' ~ 1,
+#     TRUE ~ 0)
+#   )
+#   
+# trans <- trans %>%
+#   mutate(credit_cash = case_when(
+#     operation == 'VKLAD' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# trans <- trans %>%
+#   mutate(col_from_other_bank = case_when(
+#     operation == 'PREVOD Z UCTU' ~ 1, 
+#     TRUE ~ 0)
+#   )
+# 
+# trans <- trans %>%
+#   mutate(wd_cash = case_when(
+#     operation == 'VYBER' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# trans <- trans %>%
+#   mutate(rem_to_other_bank = case_when(
+#     operation == 'PREVOD NA UCET' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# #reformat k_symbol into 7 new columns
+# trans <- trans %>%
+#   mutate(ks_insurrance_payment = case_when(
+#     k_symbol == 'POJISTNE' ~ 1,
+#     TRUE ~ 0)
+#   )
 
-trans <- trans %>%
-  mutate(col_from_other_bank = case_when(
-    operation == 'PREVOD Z UCTU' ~ 1, 
-    TRUE ~ 0)
-  )
-
-trans <- trans %>%
-  mutate(wd_cash = case_when(
-    operation == 'VYBER' ~ 1,
-    TRUE ~ 0)
-  )
-
-trans <- trans %>%
-  mutate(rem_to_other_bank = case_when(
-    operation == 'PREVOD NA UCET' ~ 1,
-    TRUE ~ 0)
-  )
-
-#reformat k_symbol into 7 new columns
-trans <- trans %>%
-  mutate(ks_insurrance_payment = case_when(
-    k_symbol == 'POJISTNE' ~ 1,
-    TRUE ~ 0)
-  )
-
-trans <- trans %>%
-  mutate(ks_payment_of_statement = case_when(
-    k_symbol == 'SLUZBY' ~ 1,
-    TRUE ~ 0)
-  )
-
-trans <- trans %>%
-  mutate(ks_interest_credit = case_when(
-    k_symbol == 'UROK' ~ 1,
-    TRUE ~ 0)
-  )
-
-trans <- trans %>%
-  mutate(ks_interest_if_n_balance = case_when(
-    k_symbol == 'SANKC. UROK' ~ 1,
-    TRUE ~ 0)
-  )
-
-trans <- trans %>%
-  mutate(ks_household = case_when(
-    k_symbol == 'SIPO' ~ 1,
-    TRUE ~ 0)
-  )
-
-trans <- trans %>%
-  mutate(ks_old_age_pension = case_when(
-    k_symbol == 'DUCHOD' ~ 1,
-    TRUE ~ 0)
-  )
-
-trans <- trans %>%
-  mutate(ks_loan_payment = case_when(
-    k_symbol == 'UVER' ~ 1,
-    TRUE ~ 0)
-  )
+# trans <- trans %>%
+#   mutate(ks_payment_of_statement = case_when(
+#     k_symbol == 'SLUZBY' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# trans <- trans %>%
+#   mutate(ks_interest_credit = case_when(
+#     k_symbol == 'UROK' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# trans <- trans %>%
+#   mutate(ks_interest_if_n_balance = case_when(
+#     k_symbol == 'SANKC. UROK' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# trans <- trans %>%
+#   mutate(ks_household = case_when(
+#     k_symbol == 'SIPO' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# trans <- trans %>%
+#   mutate(ks_old_age_pension = case_when(
+#     k_symbol == 'DUCHOD' ~ 1,
+#     TRUE ~ 0)
+#   )
+# 
+# trans <- trans %>%
+#   mutate(ks_loan_payment = case_when(
+#     k_symbol == 'UVER' ~ 1,
+#     TRUE ~ 0)
+#   )
 
 #factorize variables
 trans <- trans %>%
   mutate(type = as_factor(type),
-         credit = as_factor(credit), 
-         withdrawal = as_factor(withdrawal), 
-         creditcard_wd = as_factor(creditcard_wd),
-         operation = as_factor(operation), 
-         credit_cash = as_factor(credit_cash), 
-         col_from_other_bank = as_factor(col_from_other_bank), 
-         wd_cash = as_factor(wd_cash), 
-         rem_to_other_bank = as_factor(rem_to_other_bank), 
-         ks_insurrance_payment = as_factor(ks_insurrance_payment),
-         k_symbol = as_factor(k_symbol), 
-         ks_insurrance_payment = as_factor(ks_insurrance_payment),
-         ks_payment_of_statement = as_factor(ks_payment_of_statement), 
-         ks_interest_credit = as_factor(ks_interest_credit), 
-         ks_interest_if_n_balance = as_factor(ks_interest_if_n_balance), 
-         ks_household = as_factor(ks_household),
-         ks_old_age_pension = as_factor(ks_old_age_pension), 
-         ks_loan_payment = as_factor(ks_loan_payment),
+         # credit = as_factor(credit), 
+         # withdrawal = as_factor(withdrawal), 
+         # creditcard_wd = as_factor(creditcard_wd),
+         operation = as_factor(operation),
+         # credit_cash = as_factor(credit_cash),
+         # col_from_other_bank = as_factor(col_from_other_bank), 
+         # wd_cash = as_factor(wd_cash), 
+         # rem_to_other_bank = as_factor(rem_to_other_bank), 
+         # ks_insurrance_payment = as_factor(ks_insurrance_payment),
+         k_symbol = as_factor(k_symbol),
+         # ks_insurrance_payment = as_factor(ks_insurrance_payment),
+         # ks_payment_of_statement = as_factor(ks_payment_of_statement), 
+         # ks_interest_credit = as_factor(ks_interest_credit), 
+         # ks_interest_if_n_balance = as_factor(ks_interest_if_n_balance), 
+         # ks_household = as_factor(ks_household),
+         # ks_old_age_pension = as_factor(ks_old_age_pension), 
+         # ks_loan_payment = as_factor(ks_loan_payment),
          date_dmy = as.Date(date_dmy)
          )
 
 trans <- trans %>%
   mutate(type = case_when(
     type == 'PRIJEM' ~ 'credit',
-    type == 'VYDAJ' ~ 'withdrawal'
+    type == 'VYDAJ' ~ 'withdrawal',
+    type == 'VYBER' ~ 'withdrawal in cash'
   )) %>%
   mutate(operation = case_when(
     operation == 'VYBER KARTOU' ~ 'credit card withdrawal',
@@ -525,8 +526,8 @@ client_disp <- client_disp %>%
     - month,
     - issued
   )
-
-client_disp <- client_disp[,c(1,2,3,11,7,8,10,4,12,9,5,6,13,14,15,16)]
+# ordnung hinfällig weil spalten nicht mehr vorhanden
+# client_disp <- client_disp[,c(1,2,3,11,7,8,10,4,12,9,5,6,13,14,15,16)]
 
 
 #gender count aller clients
@@ -781,9 +782,9 @@ card_type_age_f
 # filter by card, make dataframe for each card type
 
 #wenn junior_card is true pipe into new data frame
-client_junior <- filter(client_disp , junior_card == 1)
-client_classic <- filter(client_disp , classic_card == 1)
-client_gold <- filter(client_disp , gold_card == 1)
+client_junior <- filter(client_disp , type_card == 'junior')
+client_classic <- filter(client_disp , type_card == 'classic')
+client_gold <- filter(client_disp , type_card == 'gold')
 
 client_all_cards <- client_disp %>%
   filter(!is.na(type_card))
@@ -859,7 +860,12 @@ cardowner_transactions <- inner_join(client_all_cards, trans, by = 'account_id')
              type == 'withdrawal' ~ 1,
              type != 'withdrawal' ~ 0
            )
-    
+  ) %>%
+  mutate(
+    type = as.factor(type),
+    operation = as.factor(operation),
+    k_symbol = as.factor(k_symbol),
+    bank = as.factor(bank)
   )
 
 junior_card_transactions <- filter(cardowner_transactions, type_card == 'junior')
@@ -890,12 +896,45 @@ junior_card_transactions_2
 
 ```{r}
 
-#zuerst durchschnitt pro gender berechnen
+#zuerst durchschnitt pro gender berechnen und dann mean pro gender angeben
+
+junior_type_sum <- junior_card_transactions$type %>%
+  summary()
+
+classic_type_sum <- classic_card_transactions$type %>%
+  summary()
+
+gold_type_sum <- gold_card_transactions$type %>%
+  summary()
+
+print('junior_type')
+junior_type_sum
+print('classic_type')
+classic_type_sum
+print('gold_type')
+gold_type_sum
 
 
+#Na untersuchen juniorcard
+junior_card_transactions_na <- filter(junior_card_transactions, is.na(type)) 
 
+junior_card_transactions_na_sum <- junior_card_transactions_na$operation %>%
+  summary()
+junior_card_transactions_na_sum
 
+#na untersuchen classic card
+classic_card_transactions_na <- filter(classic_card_transactions, is.na(type)) 
 
+classic_card_transactions_na_sum <- classic_card_transactions_na$operation %>%
+  summary()
+classic_card_transactions_na_sum
+
+#na untersuchen gold card
+gold_card_transactions_na <- filter(gold_card_transactions, is.na(type)) 
+
+gold_card_transactions_na_sum <- gold_card_transactions_na$operation %>%
+  summary()
+gold_card_transactions_na_sum
 
 
 
@@ -904,15 +943,18 @@ junior_card_transactions_2
 
 junior_trans_viz <- ggplot(junior_card_transactions, aes( x = type, fill = gender))+
   geom_bar(position = 'dodge')+
-  ggtitle('\nIncome compared to withdrawals Junior Card\n')+
+  ggtitle('\nCredit compared to withdrawals Junior Card\n')+
   theme(
     plot.title = element_text(hjust = 0.5)
   )
 junior_trans_viz
 
+
+
+
 classic_trans_viz <- ggplot(classic_card_transactions, aes( x = type, fill = gender))+
   geom_bar(position = 'dodge')+
-  ggtitle('\nIncome compared to withdrawals classic card\n')+
+  ggtitle('\nCredit compared to withdrawals classic card\n')+
   theme(
     plot.title = element_text(hjust = 0.5)
   )
@@ -920,7 +962,7 @@ classic_trans_viz
 
 gold_trans_viz <- ggplot(gold_card_transactions, aes( x = type, fill = gender))+
   geom_bar(position = 'dodge')+
-  ggtitle('\nIncome compared to withdrawals gold card\n')+
+  ggtitle('\nCredit compared to withdrawals gold card\n')+
   theme(
     plot.title = element_text(hjust = 0.5)
   )
