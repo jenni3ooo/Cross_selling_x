@@ -844,7 +844,88 @@ gold_issued_age_viz
 
 ```
 
+```{r}
+#join card information to traansactions via account id
 
+cardowner_transactions <- inner_join(client_all_cards, trans, by = 'account_id') %>%
+  mutate(trans_credit =
+    case_when(
+      type == 'credit' ~ 1,
+      type != 'credit' ~ 0
+    )
+  ) %>%
+  mutate(trans_withdrawal =
+           case_when(
+             type == 'withdrawal' ~ 1,
+             type != 'withdrawal' ~ 0
+           )
+    
+  )
+
+junior_card_transactions <- filter(cardowner_transactions, type_card == 'junior')
+classic_card_transactions <- filter(cardowner_transactions, type_card == 'classic')
+gold_card_transactions <- filter(cardowner_transactions, type_card == 'gold')
+```
+
+
+```{r}
+junior_card_transactions_2 <- junior_card_transactions %>%
+  group_by(account_id, type) %>%
+  summarise(
+    count = n()
+  ) 
+junior_card_transactions_2
+
+
+
+```
+
+
+
+
+
+
+
+
+
+```{r}
+
+#zuerst durchschnitt pro gender berechnen
+
+
+
+
+
+
+
+
+
+
+
+junior_trans_viz <- ggplot(junior_card_transactions, aes( x = type, fill = gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\nIncome compared to withdrawals Junior Card\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  )
+junior_trans_viz
+
+classic_trans_viz <- ggplot(classic_card_transactions, aes( x = type, fill = gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\nIncome compared to withdrawals classic card\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  )
+classic_trans_viz
+
+gold_trans_viz <- ggplot(gold_card_transactions, aes( x = type, fill = gender))+
+  geom_bar(position = 'dodge')+
+  ggtitle('\nIncome compared to withdrawals gold card\n')+
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  )
+gold_trans_viz
+```
 
 
 
