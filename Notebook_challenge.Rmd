@@ -969,6 +969,9 @@ gold_trans_viz <- ggplot(gold_card_transactions, aes( x = type, fill = gender))+
 gold_trans_viz
 ```
 
+```{r}
+#github test, bringtmi no is grab de seich
+```
 
 
 
