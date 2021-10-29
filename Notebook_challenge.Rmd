@@ -1021,15 +1021,6 @@ summary(trans)
 ```
 
 
-```{r}
-df_client_disp = client %>% full_join(disp, by ="client_id") %>%
-  select(-district_id, -birth_number, -birthday)
-df_account_client_disp = account %>% full_join(df_client_disp, by = "account_id")
-
-str(df_account_client_disp)
-```
-
-
 
 
 
