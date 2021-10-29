@@ -845,30 +845,6 @@ nrm6 <- df_account_client_disp_m %>%
 nrm6
 ```
 
-```{r}
-#group all the clients in 7 different groups
-df_account_client_disp <- df_account_client_disp %>%
-  mutate(age2 = case_when(
-    age < 12 ~ 'child < 12',
-    age < 30 ~ 'teenie to adult < 30',
-    age < 45 ~ 'young adult < 45',
-    age < 57 ~ 'adult < 57',
-    age < 67 ~ 'older adult < 67',
-    age < 85 ~ 'senior < 85',
-    age < 100 ~ 'old < 100',
-    TRUE ~ 'not known'
-  ))
-
-#factor the groups
-df_account_client_disp <- df_account_client_disp %>% 
-  mutate(age2 = as_factor(age2))
-
-#order the new age column in a determined way
-df_account_client_disp$age2 <- 
-  ordered(df_account_client_disp$age2, levels = c('child < 12', 'teenie to adult < 30', 
-                                                   'young adult < 45', 'adult < 57', 'older adult < 67', 
-                                                   'senior < 85', 'old < 100'))
-```
 
 ```{r}
 #bar chart, one bar for each age
@@ -897,50 +873,10 @@ df_account_client_disp %>% ggplot(aes(x = age, fill = gender)) + geom_bar(positi
 ```
 
 ```{r}
-#histogram, women and men separated, groups 0-10,11-20, 21-30 and so on
-#not very helpful because of the grouping and the design of the histogram --> which bar belongs to what age?
-df_account_client_disp %>% ggplot(aes(x = age, fill = gender)) + 
-  geom_histogram(binwidth = 10, position='dodge', col="white") +
-  scale_x_continuous(breaks = seq(0,100,10), lim = c(0,100)) + scale_fill_brewer(palette = "Paired") + 
-  xlab('Age of clients')
-
-#reorder the age2 column to ascending
-df_account_client_disp <- df_account_client_disp %>%
-  mutate(age2 = fct_reorder(age2, desc(age2))) 
-
-#bar chart, all clients in 7 groups
-df_account_client_disp %>% ggplot(aes(x = factor(age2))) + geom_bar() +
-         scale_fill_brewer(palette = "Paired") + xlab('Age of clients')
-
-#two bar charts, women and men separated, 7 groups 
-df_account_client_disp %>% ggplot(aes(x = age2, fill = gender)) + geom_bar() +
-         scale_fill_brewer(palette = "Paired") + facet_wrap(~ gender)+ xlab('Age of clients')
-
-#bar chart, women and men separated, 7 groups 
-df_account_client_disp %>% ggplot(aes(x = age2, fill = gender)) + geom_bar(position = 'dodge') +
-         scale_fill_brewer(palette = "Paired") + xlab('Age of clients')
-
-#stacked bar chart, women and men separated, 7 groups 
-df_account_client_disp %>% ggplot(aes(x = age2, fill = gender)) + 
-  geom_bar() + scale_fill_brewer(palette = "Paired") + xlab('Age of clients')
-
-#coordination flipped bar chart, women and men separated, 7 groups 
-df_account_client_disp %>% ggplot(aes(x = age2, fill = gender)) + 
-  geom_bar() + scale_fill_brewer(palette = "Paired") +
-  coord_flip() + xlab('Age of clients')
-
-#coordination flipped bar chart, women and men separated, 7 groups, in percentage
-df_account_client_disp %>% ggplot(aes(x = age2, fill = gender)) + 
-  geom_bar(position = 'fill') + scale_fill_brewer(palette = "Paired") + coord_flip() + 
-  xlab('Age of clients') + ylab('Density') 
-
-```
-
-```{r}
 #order the clients by youngest and oldest, youngest is 10, oldest is 86
 #group all the clients in 7 different groups
 df_account_client_disp <- df_account_client_disp %>%
-  mutate(age3 = case_when(
+  mutate(age_grouped = case_when(
     age <= 16 ~ '1-16',
     age <= 32 ~ '17-32',
     age <= 48 ~ '33-48',
@@ -952,43 +888,43 @@ df_account_client_disp <- df_account_client_disp %>%
 
 #factor the groups
 df_account_client_disp <- df_account_client_disp %>% 
-  mutate(age3 = as_factor(age3))
+  mutate(age_grouped = as_factor(age_grouped))
 
 #order the new age column in a determined way
 df_account_client_disp$age3 <- 
-  ordered(df_account_client_disp$age3, levels = c('1-16', '17-32', '33-48', '49-64', '65-72', 
-                                                  '73-86'))
+  ordered(df_account_client_disp$age_grouped, levels = c('1-16', '17-32', '33-48', '49-64', '65-72',
+                                                         '73-86'))
 ```
 
 
 ```{r}
 #bar chart, all clients in 7 groups
-df_account_client_disp %>% ggplot(aes(x = factor(age3))) + geom_bar() +
+df_account_client_disp %>% ggplot(aes(x = factor(age_grouped))) + geom_bar() +
          scale_fill_brewer(palette = "Paired") + xlab('Age of clients')
 
 #two bar charts, women and men separated, 7 groups 
-df_account_client_disp %>% ggplot(aes(x = age3, fill = gender)) + geom_bar() +
+df_account_client_disp %>% ggplot(aes(x = age_grouped, fill = gender)) + geom_bar() +
          scale_fill_brewer(palette = "Paired") + facet_wrap(~ gender)+ xlab('Age of clients')
 
 #bar chart, women and men separated, 7 groups 
-df_account_client_disp %>% ggplot(aes(x = age3, fill = gender)) + geom_bar(position = 'dodge') +
+df_account_client_disp %>% ggplot(aes(x = age_grouped, fill = gender)) + geom_bar(position = 'dodge') +
          scale_fill_brewer(palette = "Paired") + xlab('Age of clients')
 
 #stacked bar chart, women and men separated, 7 groups 
-df_account_client_disp %>% ggplot(aes(x = age3, fill = gender)) + 
+df_account_client_disp %>% ggplot(aes(x = age_grouped, fill = gender)) + 
   geom_bar() + scale_fill_brewer(palette = "Paired") + xlab('Age of clients')
 
 #reorder the age3 column to ascending
 df_account_client_disp <- df_account_client_disp %>%
-  mutate(age3 = fct_reorder(age3, desc(age3))) 
+  mutate(age3 = fct_reorder(age_grouped, desc(age_grouped))) 
 
 #coordination flipped bar chart, women and men separated, 7 groups 
-df_account_client_disp %>% ggplot(aes(x = age3, fill = gender)) + 
+df_account_client_disp %>% ggplot(aes(x = age_grouped, fill = gender)) + 
   geom_bar() + scale_fill_brewer(palette = "Paired") +
   coord_flip() + xlab('Age of clients')
 
 #coordination flipped bar chart, women and men separated, 7 groups, in percentage
-df_account_client_disp %>% ggplot(aes(x = age3, fill = gender)) + 
+df_account_client_disp %>% ggplot(aes(x = age_grouped, fill = gender)) + 
   geom_bar(position = 'fill') + scale_fill_brewer(palette = "Paired") + coord_flip() + 
   xlab('Age of clients') + ylab('Density') 
 ```
