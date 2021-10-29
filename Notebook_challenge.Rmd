@@ -16,6 +16,7 @@ library(rpart.plot)
 library(gridExtra)
 library(usethis)
 library(ggplot2)
+library(dplyr)
 ```
 
 ```{r}
@@ -30,7 +31,6 @@ order <- read.csv('./order.csv', sep = ";")
 trans <- read.csv('./trans.csv', sep = ";")
 
 ```
-
 
 clean/organize account
 ```{r}
@@ -51,11 +51,12 @@ account <- account %>%
     frequency == 'POPLATEK TYDNE' ~ 'weekly issuance',
     frequency == 'POPLATEK PO OBRATU' ~ 'issuance after transaction'
   ))
-#str(account)
+
 ```
 
 clean/organize card
 ```{r}
+
 #reformat date
 card$issued_date <- format(as.Date(as.character(card$issued), "%y%m%d"), "19%y/%m/%d")
 
@@ -287,12 +288,6 @@ gen_client_test
 ```
 
 
-Districts
-```{r}
-
-
-
-```
 
 Fragestellung Recherche Jenni
 
@@ -433,6 +428,7 @@ card_type_g_j <- ggplot(
   
 card_type_g_j
 ```
+
 ```{r}
 card_type_age_g <- ggplot(
   client_disp, aes(x = age, colour = type_card))+
@@ -546,6 +542,7 @@ client_na_junior_age_viz <- ggplot(client_na_junior, aes(x=age, fill=gender))+
 client_na_junior_age_viz
 
 ```
+
 ```{r}
 client_classic$age_card_issued <- floor(age_calc(as.Date(client_classic$birthday),client_classic$card_issued, units = 'years'))
 client_gold$age_card_issued <- floor(age_calc(as.Date(client_gold$birthday),client_gold$card_issued, units = 'years'))
@@ -610,14 +607,6 @@ junior_card_transactions_2
 
 
 ```
-
-
-
-
-
-
-
-
 
 ```{r}
 
@@ -735,6 +724,22 @@ gold_trans_viz <- ggplot(gold_card_transactions, aes( x = type, fill = gender))+
     plot.title = element_text(hjust = 0.5)
   )
 gold_trans_viz
+```
+
+```{r}
+df_client_disp = client %>% full_join(disp, by ="client_id") %>%
+  select(-district_id, -birth_number, -birthday)
+df_account_client_disp = account %>% full_join(df_client_disp, by = "account_id")
+
+str(df_account_client_disp)
+summary(df_account_client_disp)
+nrow(df_account_client_disp)
+```
+
+```{r}
+#density plot, women and men separated
+df_account_client_disp %>% ggplot(aes(x = age, color = gender)) +
+    geom_density(size = 1) + xlab('Age of clients')
 ```
 
 ```{r}
@@ -986,38 +991,6 @@ df_account_client_disp %>% ggplot(aes(x = age3, fill = gender)) +
 df_account_client_disp %>% ggplot(aes(x = age3, fill = gender)) + 
   geom_bar(position = 'fill') + scale_fill_brewer(palette = "Paired") + coord_flip() + 
   xlab('Age of clients') + ylab('Density') 
-```
-
-```{r}
-summary(account)
-```
-
-```{r}
-summary(card)
-```
-
-```{r}
-summary(client)
-```
-
-```{r}
-summary(disp)
-```
-
-```{r}
-summary(district)
-```
-
-```{r}
-summary(loan)
-```
-
-```{r}
-summary(order)
-```
-
-```{r}
-summary(trans)
 ```
 
 
