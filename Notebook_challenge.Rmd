@@ -726,156 +726,192 @@ gold_trans_viz <- ggplot(gold_card_transactions, aes( x = type, fill = gender))+
 gold_trans_viz
 ```
 
-```{r}
-df_client_disp = client %>% full_join(disp, by ="client_id") %>%
-  select(-district_id, -birth_number, -birthday)
-df_account_client_disp = account %>% full_join(df_client_disp, by = "account_id")
 
-str(df_account_client_disp)
-summary(df_account_client_disp)
-nrow(df_account_client_disp)
+Join tables:
+1) Left join of account with disp to df_account_disp. Then left join df_account_disp with client to df_account_disp_client. 
+```{r}
+df_account_disp <- left_join(account, disp, by = 'account_id') 
+df_account_disp_client <- left_join(df_account_disp, client, by = 'client_id') %>%
+  select(-birth_number, -birthday) %>%
+  rename(
+    district_account = district_id.x,
+    date_account = date_ymd,
+    district_client = district_id.y,
+  )
 ```
 
+2) Left join order with df_account_disp_client to df_order_account_client_disp.
+```{r}
+df_order_account_client_disp <- left_join(order, df_account_disp_client, by = "account_id")
+```
+
+3) Left join loan with df_account_disp_client to df_loan_account_client_disp.
+```{r}
+df_loan_account_client_disp <- left_join(loan, df_account_disp_client, by = "account_id")
+```
+
+Analyse the propability of clients age
+Visualize the gender difference
 ```{r}
 #density plot, women and men separated
-df_account_client_disp %>% ggplot(aes(x = age, color = gender)) +
+df_account_disp_client %>% ggplot(aes(x = age, color = gender)) +
     geom_density(size = 1) + xlab('Age of clients')
 ```
 
-```{r}
-#turning points in age
-#in general
-nr1 <- df_account_client_disp %>%
-  filter(age == 16) %>%
-  nrow()
-nr1
-
-nr2 <- df_account_client_disp %>%
-  filter(age == 17) %>%
-  nrow()
-nr2
-
-nr3 <- df_account_client_disp %>%
-  filter(age == 58) %>%
-  nrow()
-nr3
-
-nr4 <- df_account_client_disp %>%
-  filter(age == 59) %>%
-  nrow()
-nr4
-
-nr5 <- df_account_client_disp %>%
-  filter(age == 79) %>%
-  nrow()
-nr5
-
-nr6 <- df_account_client_disp %>%
-  filter(age == 80) %>%
-  nrow()
-nr6
-
-#turning points in age
-#for women
-df_account_client_disp_w <- df_account_client_disp %>%
-  filter(gender == 'f')
-
-nrw1 <- df_account_client_disp_w %>%
-  filter(age == 16) %>%
-  nrow()
-nrw1
-
-nrw2 <- df_account_client_disp_w %>%
-  filter(age == 17) %>%
-  nrow()
-nrw2
-
-nrw3 <- df_account_client_disp_w %>%
-  filter(age == 58) %>%
-  nrow()
-nrw3
-
-nrw4 <- df_account_client_disp_w %>%
-  filter(age == 59) %>%
-  nrow()
-nrw4
-
-nrw5 <- df_account_client_disp_w %>%
-  filter(age == 79) %>%
-  nrow()
-nrw5
-
-nrw6 <- df_account_client_disp_w %>%
-  filter(age == 80) %>%
-  nrow()
-nrw6
-
-#for men
-df_account_client_disp_m <- df_account_client_disp %>%
-  filter(gender == 'm')
-
-nrm1 <- df_account_client_disp_m %>%
-  filter(age == 16) %>%
-  nrow()
-nrm1
-
-nrm2 <- df_account_client_disp_m %>%
-  filter(age == 17) %>%
-  nrow()
-nrm2
-
-nrm3 <- df_account_client_disp_m %>%
-  filter(age == 62) %>%
-  nrow()
-nrm3
-
-nrm4 <- df_account_client_disp_m %>%
-  filter(age == 63) %>%
-  nrow()
-nrm4
-
-nrm5 <- df_account_client_disp_m %>%
-  filter(age == 79) %>%
-  nrow()
-nrm5
-
-nrm6 <- df_account_client_disp_m %>%
-  filter(age == 80) %>%
-  nrow()
-nrm6
-```
-
-
+Visualize the number of accounts according to the clients age with different kinds of bar charts
 ```{r}
 #bar chart, one bar for each age
-df_account_client_disp %>% ggplot(aes(x = age)) + geom_bar() + scale_fill_brewer(palette = "Paired") 
+df_account_disp_client %>% ggplot(aes(x = age)) + geom_bar() + scale_fill_brewer(palette = "Paired") 
 
 #bar chart, women and men separated, one bar for each age
-df_account_client_disp %>% ggplot(aes(x = age, fill = gender)) + geom_bar(position = 'dodge') +
+df_account_disp_client %>% ggplot(aes(x = age, fill = gender)) + geom_bar(position = 'dodge') +
          scale_fill_brewer(palette = "Paired") + xlab('Age of clients')
 
 #stacked bar chart, women and men separated, one bar for each age
-df_account_client_disp %>% ggplot(aes(x = age, fill = gender)) + geom_bar() +
+df_account_disp_client %>% ggplot(aes(x = age, fill = gender)) + geom_bar() +
          scale_fill_brewer(palette = "Paired") + xlab('Age of clients')
 
 #two bar charts, women and men separated, each age one bar
-df_account_client_disp %>% ggplot(aes(x = age, fill = gender)) + geom_bar() +
+df_account_disp_client %>% ggplot(aes(x = age, fill = gender)) + geom_bar() +
          scale_fill_brewer(palette = "Paired") + facet_wrap(~ gender) + xlab('Age of clients')
 
 #coordination flipped bar chart, omen and men separated, one bar for each age
-df_account_client_disp %>% ggplot(aes(x = age, fill = gender)) + geom_bar() + coord_flip() +
+df_account_disp_client %>% ggplot(aes(x = age, fill = gender)) + geom_bar() + coord_flip() +
          scale_fill_brewer(palette = "Paired") + xlab('Age of clients')
 
 #coordination flipped bar chart, omen and men separated, one bar for each age, in percentage
-df_account_client_disp %>% ggplot(aes(x = age, fill = gender)) + geom_bar(position = 'fill') +
+df_account_disp_client %>% ggplot(aes(x = age, fill = gender)) + geom_bar(position = 'fill') +
   coord_flip() + scale_fill_brewer(palette = "Paired") + xlab('Age of clients')
 
 ```
 
+Analysis of the "turning points" in the top bar charts: Count the number of accounts a for example 16 year old client, female client and male client has. I a next step analyse the one year older client. 
+```{r}
+#turning points in age
+#in general
+nr1 <- df_account_disp_client %>%
+  filter(age == 16) %>%
+  nrow()
+print('number of account of 16 year old clients')
+nr1
+
+nr2 <- df_account_disp_client %>%
+  filter(age == 17) %>%
+  nrow()
+print('number of account of 17 year old clients')
+nr2
+
+nr3 <- df_account_disp_client %>%
+  filter(age == 58) %>%
+  nrow()
+print('number of account of 58 year old clients')
+nr3
+
+nr4 <- df_account_disp_client %>%
+  filter(age == 59) %>%
+  nrow()
+print('number of account of 59 year old clients')
+nr4
+
+nr5 <- df_account_disp_client %>%
+  filter(age == 79) %>%
+  nrow()
+print('number of account of 79 year old clients')
+nr5
+
+nr6 <- df_account_disp_client %>%
+  filter(age == 80) %>%
+  nrow()
+print('number of account of 80 year old clients')
+nr6
+
+#turning points in age
+#for women
+df_account_disp_client_w <- df_account_disp_client %>%
+  filter(gender == 'f')
+
+nrw1 <- df_account_disp_client_w %>%
+  filter(age == 16) %>%
+  nrow()
+print('number of account of 16 year old female clients')
+nrw1
+
+nrw2 <- df_account_disp_client_w %>%
+  filter(age == 17) %>%
+  nrow()
+print('number of account of 17 year old female clients')
+nrw2
+
+nrw3 <- df_account_disp_client_w %>%
+  filter(age == 58) %>%
+  nrow()
+print('number of account of 58 year old female clients')
+nrw3
+
+nrw4 <- df_account_disp_client_w %>%
+  filter(age == 59) %>%
+  nrow()
+print('number of account of 59 year old female clients')
+nrw4
+
+nrw5 <- df_account_disp_client_w %>%
+  filter(age == 79) %>%
+  nrow()
+print('number of account of 79 year old female clients')
+nrw5
+
+nrw6 <- df_account_disp_client_w %>%
+  filter(age == 80) %>%
+  nrow()
+print('number of account of 80 year old female clients')
+nrw6
+
+#for men
+df_account_disp_client_m <- df_account_disp_client %>%
+  filter(gender == 'm')
+
+nrm1 <- df_account_disp_client_m %>%
+  filter(age == 16) %>%
+  nrow()
+print('number of account of 16 year old male clients')
+nrm1
+
+nrm2 <- df_account_disp_client_m %>%
+  filter(age == 17) %>%
+  nrow()
+print('number of account of 17 year old male clients')
+nrm2
+
+nrm3 <- df_account_disp_client_m %>%
+  filter(age == 62) %>%
+  nrow()
+print('number of account of 62 year old male clients')
+nrm3
+
+nrm4 <- df_account_disp_client_m %>%
+  filter(age == 63) %>%
+  nrow()
+print('number of account of 63 year old male clients')
+nrm4
+
+nrm5 <- df_account_disp_client_m %>%
+  filter(age == 79) %>%
+  nrow()
+print('number of account of 79 year old male clients')
+nrm5
+
+nrm6 <- df_account_disp_client_m %>%
+  filter(age == 80) %>%
+  nrow()
+print('number of account of 80 year old male clients')
+nrm6
+```
+
+Group the clients same sized age groups. The group size is 16. With grouping the clients we are losing some information. But with grouping the clients in different group sizes we would create a misleading chart. 
 ```{r}
 #order the clients by youngest and oldest, youngest is 10, oldest is 86
 #group all the clients in 7 different groups
-df_account_client_disp <- df_account_client_disp %>%
+df_account_disp_client <- df_account_disp_client %>%
   mutate(age_grouped = case_when(
     age <= 16 ~ '1-16',
     age <= 32 ~ '17-32',
@@ -887,49 +923,165 @@ df_account_client_disp <- df_account_client_disp %>%
   ))
 
 #factor the groups
-df_account_client_disp <- df_account_client_disp %>% 
+df_account_disp_client <- df_account_disp_client %>% 
   mutate(age_grouped = as_factor(age_grouped))
 
 #order the new age column in a determined way
-df_account_client_disp$age3 <- 
-  ordered(df_account_client_disp$age_grouped, levels = c('1-16', '17-32', '33-48', '49-64', '65-72',
+df_account_disp_client$age_grouped <- 
+  ordered(df_account_disp_client$age_grouped, levels = c('1-16', '17-32', '33-48', '49-64', '65-72',
                                                          '73-86'))
 ```
 
-
+Visualize the number of accounts according to the clients age with different kinds of bar charts now using the age groups
 ```{r}
 #bar chart, all clients in 7 groups
-df_account_client_disp %>% ggplot(aes(x = factor(age_grouped))) + geom_bar() +
+df_account_disp_client %>% ggplot(aes(x = factor(age_grouped))) + geom_bar() +
          scale_fill_brewer(palette = "Paired") + xlab('Age of clients')
 
 #two bar charts, women and men separated, 7 groups 
-df_account_client_disp %>% ggplot(aes(x = age_grouped, fill = gender)) + geom_bar() +
+df_account_disp_client %>% ggplot(aes(x = age_grouped, fill = gender)) + geom_bar() +
          scale_fill_brewer(palette = "Paired") + facet_wrap(~ gender)+ xlab('Age of clients')
 
 #bar chart, women and men separated, 7 groups 
-df_account_client_disp %>% ggplot(aes(x = age_grouped, fill = gender)) + geom_bar(position = 'dodge') +
+df_account_disp_client %>% ggplot(aes(x = age_grouped, fill = gender)) + geom_bar(position = 'dodge') +
          scale_fill_brewer(palette = "Paired") + xlab('Age of clients')
 
 #stacked bar chart, women and men separated, 7 groups 
-df_account_client_disp %>% ggplot(aes(x = age_grouped, fill = gender)) + 
+df_account_disp_client %>% ggplot(aes(x = age_grouped, fill = gender)) + 
   geom_bar() + scale_fill_brewer(palette = "Paired") + xlab('Age of clients')
 
 #reorder the age3 column to ascending
-df_account_client_disp <- df_account_client_disp %>%
+df_account_disp_client <- df_account_disp_client %>%
   mutate(age3 = fct_reorder(age_grouped, desc(age_grouped))) 
 
 #coordination flipped bar chart, women and men separated, 7 groups 
-df_account_client_disp %>% ggplot(aes(x = age_grouped, fill = gender)) + 
+df_account_disp_client %>% ggplot(aes(x = age_grouped, fill = gender)) + 
   geom_bar() + scale_fill_brewer(palette = "Paired") +
   coord_flip() + xlab('Age of clients')
 
 #coordination flipped bar chart, women and men separated, 7 groups, in percentage
-df_account_client_disp %>% ggplot(aes(x = age_grouped, fill = gender)) + 
+df_account_disp_client %>% ggplot(aes(x = age_grouped, fill = gender)) + 
   geom_bar(position = 'fill') + scale_fill_brewer(palette = "Paired") + coord_flip() + 
   xlab('Age of clients') + ylab('Density') 
 ```
 
+```{r}
+#are there any NA's in colum frequency?
+flag_na <- filter(df_account_disp_client, is.na(frequency))
+flag_na
 
+#this plot isn't very useful at all
+df_account_disp_client %>% ggplot(aes(x = gender, y = age)) + 
+  geom_jitter(height = 0, alpha = 0.75, aes(color = frequency))
+
+#this plot isn't very useful at all
+df_account_disp_client %>% ggplot(aes(x = date_account, y = age)) + 
+  geom_point(aes(colour = frequency)) + 
+  geom_smooth(method='lm') + 
+  xlab('Date of account') + ylab('Age of clients') + ggtitle(label = 'Account opening relatet to client age')
+
+#this plot shows interesting differences in age for weekly issuance and issuance after transaction
+df_account_disp_client %>% ggplot(aes(x = age, color = frequency)) +
+    geom_density(size = 1) + xlab('Age of clients')
+
+```
+
+```{r}
+#Showing the different account types related to clients age
+df_account_disp_client %>% ggplot(aes(x = age, color = type)) +
+    geom_density(size = 1) + xlab('Age of clients')
+
+#coordination flipped bar chart, women and men separated, owner and disponent stacked
+df_account_disp_client %>% ggplot(aes(x = gender, fill = type)) + 
+  geom_bar() + scale_fill_brewer(palette = "Paired") +
+  coord_flip() + xlab('Gender of clients')
+
+#coordination flipped bar chart, women and men separated, owner and disponent stacked (probability)
+df_account_disp_client %>% ggplot(aes(x = gender, fill = type)) + 
+  geom_bar(position = 'fill') + scale_fill_brewer(palette = "Paired") +
+  coord_flip() + xlab('Gender of clients')
+
+#coordination flipped bar chart, different age groups, owner and disponent stacked 
+df_account_disp_client %>% ggplot(aes(x = age_grouped, fill = type)) + 
+  geom_bar() + scale_fill_brewer(palette = "Paired") +
+  coord_flip() + xlab('Age of clients')
+
+#coordination flipped bar chart, different age groups, owner and disponent stacked (probability)
+df_account_disp_client %>% ggplot(aes(x = age_grouped, fill = type)) + 
+  geom_bar(position = 'fill') + scale_fill_brewer(palette = "Paired") +
+  coord_flip() + xlab('Age of clients')
+
+#jitter plot showing the different types of clients related to their age
+df_account_disp_client %>% ggplot(aes(x = gender, y = age)) + 
+  geom_jitter(height = 0, alpha = 0.5, size = 1, width = 0.3, aes(color = type)) +
+  xlab('Gender of clients') + ylab('Age of clients') + ggtitle(label = 'Client type related to gender and age')
+
+#jitter plot showing the different types of clients related to their age
+df_account_disp_client %>% ggplot(aes(x = gender, y = age)) + 
+  geom_jitter(height = 0, alpha = 0.5, size = 1, width = 0.3, aes(color = type)) +
+  facet_wrap(~type) +
+  xlab('Gender of clients') + ylab('Age of clients') + ggtitle(label = 'Client type related to gender and age')
+
+#QUESTION: IS THEIR A MINIMUM AND MAXIMUM AGE TO BE OWNER ?????????????????
+
+```
+
+```{r}
+df_account_disp_client %>% ggplot(aes(x = date_account, y = age, group = gender, shape = gender)) +
+    geom_line() + geom_point()
+```
+
+Analyse how many accounts are duplicates
+```{r}
+nrow(account)
+
+#create variable duplicate accounts and print all of those
+duplicate_accounts <- df_account_disp_client[duplicated(df_account_disp_client$account_id)|duplicated(df_account_disp_client$account_id, fromLast=TRUE),]
+duplicate_accounts
+
+#number of accounts with more than one client
+dim(df_account_disp_client[duplicated(df_account_disp_client$account_id),])[1]
+
+#is there an account with more than 2 clients?
+table_dup_accounts <- table(duplicate_accounts$account_id)
+most_dup_accounts <- names(table_dup_accounts[table_dup_accounts==max(table_dup_accounts)])
+#we see, that it is a 1x869 matrix and the number of duplicate accounts is 869 aswell
+#so there isn't an account with more than two clients connected
+```
+Results of the analysis: The clients seem to be partners because there is always a men and a women of the same age (+- 10 years)
+
+Visualize those duplicate accounts
+```{r}
+#Showing the different account types according to clients age
+duplicate_accounts %>% ggplot(aes(x = age, color = type)) +
+    geom_density(size = 1) + xlab('Age of clients')
+
+#coordination flipped bar chart, women and men separated, 7 groups 
+df_account_disp_client %>% ggplot(aes(x = gender, fill = type)) + 
+  geom_bar() + scale_fill_brewer(palette = "Paired") +
+  coord_flip() + xlab('Gender of clients')
+
+#coordination flipped bar chart, women and men separated, 7 groups, in percentage
+df_account_disp_client %>% ggplot(aes(x = age_grouped, fill = gender)) + 
+  geom_bar(position = 'fill') + scale_fill_brewer(palette = "Paired") + coord_flip() + 
+  xlab('Age of clients') + ylab('Density')
+
+```
+
+
+
+```{r}
+titanic %>% ggplot(aes(x = Pclass, y = Age, fill = Survived)) + geom_boxplot() + xlab('Passenger Class') + ylab('Age') + ggtitle(label = 'Boxplot Age-Passenger Class')
+```
+
+```{r}
+titanic %>% ggplot(aes(x = Pclass, y = Age)) + geom_jitter(height = 0, alpha = 0.75, size = 1, width = 0.3, aes(color = Survived)) + facet_wrap( ~ Survived) + geom_boxplot(alpha = 0.5, aes(fill = Survived)) + xlab('Passenger Class') + ylab('Age') + ggtitle(label = 'Boxplot Surviving Chance')
+```
+
+```{r}
+df_account_disp_client %>% ggplot(aes(x = age, color = gender)) +
+    geom_density(size = 1) + xlab('Age of clients')
+```
 
 
 
